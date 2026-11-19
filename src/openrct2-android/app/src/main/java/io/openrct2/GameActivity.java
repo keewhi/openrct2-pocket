@@ -5,13 +5,53 @@ import android.icu.util.Currency;
 import android.icu.util.LocaleData;
 import android.icu.util.ULocale;
 import android.os.Build;
+import android.os.Bundle;
+import android.system.ErrnoException;
+import android.system.Os;
+import android.util.Log;
 import android.view.View;
 
 import org.libsdl.app.SDLActivity;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 public class GameActivity extends SDLActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        // Read by the native code (and by SDL, for hints) when the game starts, so these must
+        // be set before SDLActivity loads the libraries and starts the game thread.
+        setEnvironment("OPENRCT2_HANDHELD", "1");
+        // The system Back key reaches the game as a key (Pocket treats it as B) instead of
+        // closing the activity behind the game's back.
+        setEnvironment("SDL_ANDROID_TRAP_BACK_BUTTON", "1");
+        // Crisp pixels when the canvas is scaled to the panel.
+        setEnvironment("SDL_RENDER_SCALE_QUALITY", "0");
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onDestroy() {
+        // SDLActivity waits here for the game thread to end (quitting saves the park first).
+        super.onDestroy();
+        if (isFinishing()) {
+            // The native code keeps its state in statics, which a later launch in this same
+            // process would inherit half-torn-down. Start every launch from a fresh process.
+            System.exit(0);
+        }
+    }
+
+    private static void setEnvironment(String name, String value) {
+        try {
+            Os.setenv(name, value, true);
+        } catch (ErrnoException e) {
+            Log.w(MainActivity.TAG, "Could not set " + name, e);
+        }
+    }
 
     public float getDefaultScale() {
         return getResources().getDisplayMetrics().density;
@@ -108,9 +148,19 @@ public class GameActivity extends SDLActivity {
     }
 
     protected String[] getArguments() {
-        if (getIntent().hasExtra("commandLineArgs")) {
-            return getIntent().getStringArrayExtra("commandLineArgs");
+        List<String> arguments = new ArrayList<>();
+        arguments.add("--user-data-path=" + PocketStorage.userDirectory().getAbsolutePath());
+        File rct2 = PocketStorage.findRct2Directory(this);
+        if (rct2 != null) {
+            arguments.add("--rct2-data-path=" + rct2.getAbsolutePath());
         }
-        return new String[0];
+        // Arguments passed in by whoever launched us come last, so they can override ours.
+        if (getIntent().hasExtra("commandLineArgs")) {
+            String[] extra = getIntent().getStringArrayExtra("commandLineArgs");
+            if (extra != null) {
+                arguments.addAll(Arrays.asList(extra));
+            }
+        }
+        return arguments.toArray(new String[0]);
     }
 }

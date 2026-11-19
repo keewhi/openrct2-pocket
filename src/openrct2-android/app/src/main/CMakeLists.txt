@@ -263,5 +263,20 @@ target_include_directories(openrct2-ui SYSTEM PRIVATE "${ORCT2_ROOT}/src/thirdpa
 target_include_directories(openrct2-cli PRIVATE "${ORCT2_ROOT}/src")
 target_include_directories(openrct2-cli SYSTEM PRIVATE "${ORCT2_ROOT}/src/thirdparty")
 
-target_include_directories(openrct2 PRIVATE "/opt/openrct2/include/nlohmann/../")
-target_include_directories(openrct2-ui PRIVATE "/opt/openrct2/include/nlohmann/../")
+# nlohmann-json is header-only. The upstream CI container ships it in /opt/openrct2; anywhere
+# else, fetch the release headers once into the build tree.
+if(EXISTS "/opt/openrct2/include/nlohmann/json.hpp")
+    set(NLOHMANN_JSON_INCLUDE_DIR "/opt/openrct2/include")
+else()
+    set(NLOHMANN_JSON_INCLUDE_DIR "${CMAKE_BINARY_DIR}/nlohmann-json/include")
+    if(NOT EXISTS "${NLOHMANN_JSON_INCLUDE_DIR}/nlohmann/json.hpp")
+        file(DOWNLOAD https://github.com/nlohmann/json/releases/download/v3.11.3/include.zip
+            "${CMAKE_BINARY_DIR}/nlohmann-json.zip"
+            EXPECTED_HASH SHA256=a22461d13119ac5c78f205d3df1db13403e58ce1bb1794edc9313677313f4a9d
+            TLS_VERIFY ON)
+        file(ARCHIVE_EXTRACT INPUT "${CMAKE_BINARY_DIR}/nlohmann-json.zip"
+            DESTINATION "${CMAKE_BINARY_DIR}/nlohmann-json")
+    endif()
+endif()
+target_include_directories(openrct2 SYSTEM PRIVATE "${NLOHMANN_JSON_INCLUDE_DIR}")
+target_include_directories(openrct2-ui SYSTEM PRIVATE "${NLOHMANN_JSON_INCLUDE_DIR}")

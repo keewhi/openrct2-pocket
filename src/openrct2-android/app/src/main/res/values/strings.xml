@@ -1,3 +1,10 @@
 <resources>
-  <string name="app_name">OpenRCT2</string>
+  <string name="app_name">OpenRCT2 Pocket</string>
+  <string name="pocket_quit">Quit</string>
+  <string name="pocket_storage_title">Storage access</string>
+  <string name="pocket_storage_message">OpenRCT2 Pocket keeps your parks and settings in %1$s and reads your RollerCoaster Tycoon 2 files from storage, so it needs access to your files.\n\nOn the next screen, turn on access for OpenRCT2 Pocket, then press Back.</string>
+  <string name="pocket_storage_allow">Continue</string>
+  <string name="pocket_data_title">RollerCoaster Tycoon 2 files needed</string>
+  <string name="pocket_data_message">OpenRCT2 Pocket runs on the files from your own copy of RollerCoaster Tycoon 2 (sold on Steam and GOG). None are included.\n\nCopy the Data, ObjData and Scenarios folders from your RCT2 install into:\n%1$s\n\nso that Data/g1.dat is inside it. These folders were checked:%2$s</string>
+  <string name="pocket_data_retry">Check again</string>
 </resources>

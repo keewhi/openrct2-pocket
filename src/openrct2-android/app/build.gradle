@@ -7,6 +7,16 @@ android {
     namespace = "io.openrct2"
 
     signingConfigs {
+        // Without a release keystore, sign with the debug key committed in external/ rather
+        // than each machine's own ~/.android one, so every CI and local build of Pocket can be
+        // installed over the previous one. Anyone can sign with this key: published releases
+        // should set OPENRCT2_KEYSTORE_FILE and OPENRCT2_KEYSTORE_PASSWORD.
+        debug {
+            storeFile = file('external/debug.keystore')
+            storePassword = 'android'
+            keyAlias = 'androiddebugkey'
+            keyPassword = 'android'
+        }
         release {
             if (System.getenv('OPENRCT2_KEYSTORE_FILE') && System.getenv('OPENRCT2_KEYSTORE_PASSWORD')) {
                 storeFile = file(System.getenv('OPENRCT2_KEYSTORE_FILE'))
@@ -18,12 +28,19 @@ android {
     }
 
     defaultConfig {
-        applicationId = 'io.openrct2'
+        // Pocket installs beside upstream OpenRCT2 rather than replacing it. The Java package
+        // (namespace) stays io.openrct2 because the native code binds to those JNI names.
+        applicationId = 'io.openrct2.pocket'
+        // API 24 is the floor set by the prebuilt dependencies: their ELF notes say 21, but
+        // SDL2, FLAC, OpenSSL and curl link against API 24 libc symbols (fopen64, getifaddrs,
+        // __write_chk...), so they cannot load on Android 5 or 6. OpenRCT2's own code builds
+        // for API 21; going lower means rebuilding the dependencies.
         minSdkVersion = 24
         targetSdkVersion = 36
 
-        versionCode = 25
-        versionName = '0.5.5'
+        // CI passes the commit count, so each build can update the one before it.
+        versionCode = (project.findProperty('pocketVersionCode') ?: '1') as int
+        versionName = project.findProperty('pocketVersion') ?: '0.0.0-dev'
         if (!project.hasProperty('skipNativeBuild')) {
             externalNativeBuild {
                 cmake {
@@ -32,8 +49,9 @@ android {
                     if (project.hasProperty('abiFilter')) {
                         abiFilters project.property('abiFilter').split(',')
                     } else {
-                        // abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
-                        abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64'
+                        // Handhelds are ARM (the R36S family is arm64; 32-bit covers older
+                        // or 32-bit-only Android builds). Add x86_64 with -PabiFilter for an emulator.
+                        abiFilters 'armeabi-v7a', 'arm64-v8a'
                     }
                 }
             }

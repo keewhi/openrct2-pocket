@@ -105,6 +105,16 @@ int main()
         Check(!input.handleEvent(raw), "mouse input preserved");
         raw.type = SDL_KEYDOWN;
         Check(!input.handleEvent(raw), "keyboard input preserved");
+        raw.key.keysym.scancode = SDL_SCANCODE_AC_BACK;
+        raw.key.repeat = 0;
+        Check(input.handleEvent(raw), "Android Back key consumed");
+        frame = input.update(true, 1421);
+        Check(frame.actions.size() == 1 && frame.actions[0] == Action::back, "Android Back key emits back");
+        raw.key.repeat = 1;
+        input.handleEvent(raw);
+        Check(input.update(true, 1422).actions.empty(), "Android Back key repeat ignored");
+        raw.type = SDL_KEYUP;
+        Check(input.handleEvent(raw), "Android Back key release consumed");
 
         SDL_setenv("OPENRCT2_HANDHELD_SWAP_AB", "1", 1);
         press(SDL_CONTROLLER_BUTTON_B, true);

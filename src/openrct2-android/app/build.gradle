@@ -28,9 +28,10 @@ android {
     }
 
     defaultConfig {
-        // Pocket installs beside upstream OpenRCT2 rather than replacing it. The Java package
-        // (namespace) stays io.openrct2 because the native code binds to those JNI names.
-        applicationId = 'io.openrct2.pocket'
+        // Pocket installs beside upstream OpenRCT2 rather than replacing it, under an ID outside
+        // OpenRCT2's own io.openrct2 namespace so it is not mistaken for their app. The Java
+        // package (namespace) stays io.openrct2 because the native code binds to those JNI names.
+        applicationId = 'io.github.keewhi.openrct2pocket'
         // API 24 is the floor set by the prebuilt dependencies: their ELF notes say 21, but
         // SDL2, FLAC, OpenSSL and curl link against API 24 libc symbols (fopen64, getifaddrs,
         // __write_chk...), so they cannot load on Android 5 or 6. OpenRCT2's own code builds

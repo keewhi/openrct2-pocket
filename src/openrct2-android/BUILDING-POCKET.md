@@ -1,7 +1,7 @@
 # Building OpenRCT2 Pocket for Android
 
 The Android app is upstream OpenRCT2's Android project, set up to run Pocket: the handheld UI is
-always on, and the app (`io.openrct2.pocket`) installs beside upstream OpenRCT2. Pocket is laid out
+always on, and the app (`io.github.keewhi.openrct2pocket`) installs beside upstream OpenRCT2. Pocket is laid out
 for a 640×480 screen (the R36S) and scales up on bigger panels.
 
 ## The easy way

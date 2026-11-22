@@ -187,7 +187,7 @@ public:
         {
             const char* fs = std::getenv("OPENRCT2_HANDHELD_FULLSCREEN");
             if (fs != nullptr && fs[0] == '1' && fs[1] == '\0')
-                    mode = FullscreenMode::fullscreenDesktop;
+                mode = FullscreenMode::fullscreenDesktop;
         }
 
 #ifndef __EMSCRIPTEN__

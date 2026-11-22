@@ -127,7 +127,7 @@ namespace OpenRCT2::Ui::Handheld
         const bool noMoney = state.park.flags.has(ParkFlag::noMoney);
         const auto shown = noMoney ? state.park.cash
                                    : cashTicker.Value(state.park.cash, MenuFeel::Clock(), MenuFeel::reduceMotion);
-        
+
         static int32_t cachedYear = -1;
         static int32_t cachedMonth = -1;
         static int32_t cachedDay = -1;
@@ -143,7 +143,7 @@ namespace OpenRCT2::Ui::Handheld
            const auto monthName = FormatStringID(DateGameShortMonthNames[month]);
             cachedDate = std::to_string(day + 1) + " " + monthName + " Y" + std::to_string(year + 1);
         }
-        
+
         static uint32_t cachedGuests = UINT32_MAX;
         static std::string cachedGuestsText;
         if (state.park.numGuestsInPark != cachedGuests)
@@ -151,10 +151,10 @@ namespace OpenRCT2::Ui::Handheld
             cachedGuests = state.park.numGuestsInPark;
             cachedGuestsText = std::to_string(cachedGuests);
         }
-        
+
         HudPresentation model{ noMoney ? "No money" : FormatMoney(shown),
-            cachedDate,
-            cachedGuestsText,
+                               cachedDate,
+                               cachedGuestsText,
                                GameIsPaused(),
                                state.park.cash < 0,
                                noMoney,

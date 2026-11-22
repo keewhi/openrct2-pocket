@@ -53,6 +53,12 @@ namespace OpenRCT2::Ui::Handheld
     inline std::string WallClock()
     {
         const auto now = std::time(nullptr);
+        const auto minute = now / 60;
+        static std::time_t cachedMinute = -1;
+        static std::string cachedText;
+        if (minute == cachedMinute)
+            return cachedText;
+        cachedMinute = minute;
         std::tm local{};
 #ifdef _WIN32
         localtime_s(&local, &now);
@@ -61,7 +67,8 @@ namespace OpenRCT2::Ui::Handheld
 #endif
         char text[8];
         std::strftime(text, sizeof(text), "%H:%M", &local);
-        return text;
+        cachedText = text;
+        return cachedText;
     }
 
     // The cash readout counts toward the real balance instead of jumping, and briefly tints
@@ -120,11 +127,34 @@ namespace OpenRCT2::Ui::Handheld
         const bool noMoney = state.park.flags.has(ParkFlag::noMoney);
         const auto shown = noMoney ? state.park.cash
                                    : cashTicker.Value(state.park.cash, MenuFeel::Clock(), MenuFeel::reduceMotion);
+        
+    static int32_t cachedYear = -1;
+    static int32_t cachedMonth = -1;
+    static int32_t cachedDay = -1;
+    static std::string cachedDate;
+    const int32_t year = date.GetYear();
+    const int32_t month = date.GetMonth();
+    const int32_t day = date.GetDay();
+    if (year != cachedYear || month != cachedMonth || day != cachedDay)
+    {
+        cachedYear = year;
+        cachedMonth = month;
+        cachedDay = day;
+        cachedDate = std::to_string(day + 1) + " " + FormatStringID(DateGameShortMonthNames[month]) + " Y"
+            + std::to_string(year + 1);
+    }
+    
+    static uint32_t cachedGuests = UINT32_MAX;
+    static std::string cachedGuestsText;
+    if (state.park.numGuestsInPark != cachedGuests)
+    {
+        cachedGuests = state.park.numGuestsInPark;
+        cachedGuestsText = std::to_string(cachedGuests);
+    }
+        
         HudPresentation model{ noMoney ? "No money" : FormatMoney(shown),
-                               std::to_string(date.GetDay() + 1) + " "
-                                   + FormatStringID(DateGameShortMonthNames[date.GetMonth()]) + " Y"
-                                   + std::to_string(date.GetYear() + 1),
-                               std::to_string(state.park.numGuestsInPark),
+                              cachedDate,
+                               cachedGuestsText,
                                GameIsPaused(),
                                state.park.cash < 0,
                                noMoney,

@@ -183,6 +183,13 @@ public:
 
     void SetFullscreenMode(FullscreenMode mode) override
     {
+            if (Handheld::IsEnabled())
+            {
+                const char* fs = std::getenv("OPENRCT2_HANDHELD_FULLSCREEN");
+                if (fs != nullptr && fs[0] == '1' && fs[1] == '\0')
+                        mode = FullscreenMode::fullscreenDesktop;
+            }
+
 #ifndef __EMSCRIPTEN__
         static constexpr int32_t kSDLFullscreenFlags[] = {
             0,

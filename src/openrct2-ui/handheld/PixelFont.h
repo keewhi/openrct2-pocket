@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 #pragma once
+#include <algorithm>
 #include <openrct2/SpriteIds.h>
 #include <openrct2/drawing/Drawing.h>
 #include <openrct2/drawing/Font.h>
@@ -7,6 +8,7 @@
 #include <openrct2/drawing/RenderTarget.h>
 #include <openrct2/world/Location.hpp>
 #include <string>
+#include <string_view>
 
 // The Pixel theme's text: RCT2's own bitmap font, read straight from g1.dat. The glyph sprites mark
 // the letter body with palette index 1 (2 is an outline, 3 a drop shadow), so we paint the body in
@@ -32,7 +34,7 @@ namespace OpenRCT2::Ui::Handheld::PixelFont
     }
     // Decodes one UTF-8 character and maps it onto the RCT2 sprite font, which follows Latin-1 for
     // the common symbols (pound, yen, degrees) and has its own slot for the euro.
-    inline int GlyphIndex(const std::string& text, size_t& at)
+    inline int GlyphIndex(std::string_view text, size_t& at)
     {
         const auto c = static_cast<unsigned char>(text[at]);
         char32_t code = c;
@@ -58,16 +60,19 @@ namespace OpenRCT2::Ui::Handheld::PixelFont
     // font's 'I' is a plain one-pixel bar, so '|' borrows it with a pixel of air each side.
     constexpr int kBarIndex = '|' - 32;
     constexpr int kCapIIndex = 'I' - 32;
+    inline int AdvanceForGlyph(Style style, const OpenRCT2::G1Element* glyph)
+    {
+        return glyph ? glyph->width - 1 + (style == Style::bold ? 1 : 0) : 4;
+    }
     inline int Advance(Style style, int index)
     {
         if (index == kBarIndex)
             return Advance(Style::regular, kCapIIndex) + 2;
         if (index == 0)
             return style == Style::bold ? 5 : 4; // space
-        const auto* glyph = Glyph(Base(style) + index);
-        return glyph ? glyph->width - 1 + (style == Style::bold ? 1 : 0) : 4;
+        return AdvanceForGlyph(style, Glyph(Base(style) + index));
     }
-    inline int Width(const std::string& text, Style style, int scale = 1)
+    inline int Width(std::string_view text, Style style, int scale = 1)
     {
         int width = 0;
         for (size_t at = 0; at < text.size();)
@@ -78,40 +83,96 @@ namespace OpenRCT2::Ui::Handheld::PixelFont
     {
         return 10 * scale; // Both RCT2 sprite fonts are 10 px from cap line to descender.
     }
+    inline void DrawGlyphElement(
+        Drawing::RenderTarget& rt, ScreenCoordsXY pos, const OpenRCT2::G1Element* glyph, Drawing::PaletteIndex ink, int scale)
+    {
+        if (!glyph || !glyph->offset || scale <= 0 || rt.width <= 0 || rt.height <= 0)
+            return;
+
+        const int gx0 = pos.x + glyph->xOffset * scale;
+        const int gy0 = pos.y + glyph->yOffset * scale;
+        const int gx1 = gx0 + glyph->width * scale;
+        const int gy1 = gy0 + glyph->height * scale;
+        const int clipX0 = rt.x;
+        const int clipY0 = rt.y;
+        const int clipX1 = rt.x + rt.width;
+        const int clipY1 = rt.y + rt.height;
+        if (gx1 <= clipX0 || gy1 <= clipY0 || gx0 >= clipX1 || gy0 >= clipY1)
+            return;
+
+        const int stride = rt.LineStride();
+        if (scale == 1)
+        {
+            const int xStart = std::max(0, clipX0 - gx0);
+            const int xEnd = std::min<int>(glyph->width, clipX1 - gx0);
+            const int yStart = std::max(0, clipY0 - gy0);
+            const int yEnd = std::min<int>(glyph->height, clipY1 - gy0);
+            const uint8_t* srcRow = glyph->offset + yStart * glyph->width;
+            auto* dstRow = rt.bits + (gy0 + yStart - clipY0) * stride + (gx0 - clipX0);
+            for (int y = yStart; y < yEnd; ++y, srcRow += glyph->width, dstRow += stride)
+            {
+                for (int x = xStart; x < xEnd; ++x)
+                {
+                    if (srcRow[x] == 1)
+                        dstRow[x] = ink;
+                }
+            }
+            return;
+        }
+
+        const int xStart = std::max(0, (clipX0 - gx0) / scale);
+        const int xEnd = std::min<int>(glyph->width, (clipX1 - gx0 + scale - 1) / scale);
+        const int yStart = std::max(0, (clipY0 - gy0) / scale);
+        const int yEnd = std::min<int>(glyph->height, (clipY1 - gy0 + scale - 1) / scale);
+        const uint8_t* srcRow = glyph->offset + yStart * glyph->width;
+        for (int y = yStart; y < yEnd; ++y, srcRow += glyph->width)
+        {
+            const int py0 = std::max(clipY0, gy0 + y * scale);
+            const int py1 = std::min(clipY1, gy0 + (y + 1) * scale);
+            for (int x = xStart; x < xEnd; ++x)
+            {
+                if (srcRow[x] != 1)
+                    continue;
+                const int px0 = std::max(clipX0, gx0 + x * scale);
+                const int px1 = std::min(clipX1, gx0 + (x + 1) * scale);
+                auto* dstRow = rt.bits + (py0 - clipY0) * stride + (px0 - clipX0);
+                for (int py = py0; py < py1; ++py, dstRow += stride)
+                {
+                    for (int px = 0; px < px1 - px0; ++px)
+                        dstRow[px] = ink;
+                }
+            }
+        }
+    }
     inline void DrawGlyph(
         Drawing::RenderTarget& rt, ScreenCoordsXY pos, Style style, int index, Drawing::PaletteIndex ink, int scale)
     {
-        const auto* glyph = Glyph(Base(style) + index);
-        if (!glyph || !glyph->offset)
-            return;
-        for (int y = 0; y < glyph->height; ++y)
-            for (int x = 0; x < glyph->width; ++x)
-            {
-                if (glyph->offset[y * glyph->width + x] != 1)
-                    continue;
-                for (int sy = 0; sy < scale; ++sy)
-                    for (int sx = 0; sx < scale; ++sx)
-                    {
-                        const int px = pos.x + (x + glyph->xOffset) * scale + sx;
-                        const int py = pos.y + (y + glyph->yOffset) * scale + sy;
-                        if (px < rt.x || py < rt.y || px >= rt.x + rt.width || py >= rt.y + rt.height)
-                            continue;
-                        rt.bits[(py - rt.y) * rt.LineStride() + px - rt.x] = ink;
-                    }
-            }
+        DrawGlyphElement(rt, pos, Glyph(Base(style) + index), ink, scale);
     }
     inline void Draw(
-        Drawing::RenderTarget& rt, ScreenCoordsXY pos, const std::string& text, Style style, Drawing::PaletteIndex ink,
+        Drawing::RenderTarget& rt, ScreenCoordsXY pos, std::string_view text, Style style, Drawing::PaletteIndex ink,
         int scale = 1)
     {
+        const uint32_t base = Base(style);
         for (size_t at = 0; at < text.size();)
         {
             const int index = GlyphIndex(text, at);
             if (index == kBarIndex)
-                DrawGlyph(rt, pos + ScreenCoordsXY{ scale, 0 }, Style::regular, kCapIIndex, ink, scale);
-            else if (index > 0)
-                DrawGlyph(rt, pos, style, index, ink, scale);
-            pos.x += Advance(style, index) * scale;
+            {
+                const auto* barGlyph = Glyph(Base(Style::regular) + kCapIIndex);
+                DrawGlyphElement(rt, pos + ScreenCoordsXY{ scale, 0 }, barGlyph, ink, scale);
+                pos.x += (AdvanceForGlyph(Style::regular, barGlyph) + 2) * scale;
+            }
+            else if (index == 0)
+            {
+                pos.x += (style == Style::bold ? 5 : 4) * scale;
+            }
+            else
+            {
+                const auto* glyph = Glyph(base + index);
+                DrawGlyphElement(rt, pos, glyph, ink, scale);
+                pos.x += AdvanceForGlyph(style, glyph) * scale;
+            }
         }
     }
 } // namespace OpenRCT2::Ui::Handheld::PixelFont

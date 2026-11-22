@@ -71,7 +71,7 @@ Shortcuts and habits that only make sense with a controller in your hands.
 
 ## Controls
 
-| In the park | |
+| Button | In the park |
 |---|---|
 | D-pad | Move the camera (the cursor stays centred) |
 | A | Inspect what's under the cursor |
@@ -84,13 +84,21 @@ Shortcuts and habits that only make sense with a controller in your hands.
 | Start | Park dashboard (press again for the pause menu) |
 | Start + Select | Quit, with a Save and quit prompt |
 
-| In build tools | | In sheets and menus | |
-|---|---|---|---|
-| A | Place | D-pad | Choose |
-| X | Remove | A | Select |
-| Y | Adjust (turn, height, mode) | L1 / R1 | Change tab |
-| L2 / R2 | Height | X | Contextual action, when shown |
-| B | Back (hold: undo) | B | Back |
+| Button | In build tools |
+|---|---|
+| A | Place |
+| X | Remove |
+| Y | Adjust (turn, height, mode) |
+| L2 / R2 | Height |
+| B | Back (hold: undo) |
+
+| Button | In sheets and menus |
+|---|---|
+| D-pad | Choose |
+| A | Select |
+| L1 / R1 | Change tab |
+| X | Contextual action, when shown |
+| B | Back |
 
 The pause menu's **Controls...** page shows all of this in-game, including the hold gestures, and can replay the intro.
 

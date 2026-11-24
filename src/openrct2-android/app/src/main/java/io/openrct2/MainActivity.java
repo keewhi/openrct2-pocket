@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.net.Uri;
@@ -24,12 +23,10 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
 
-import org.apache.commons.io.IOUtils;
-
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -189,9 +186,91 @@ public class MainActivity extends AppCompatActivity {
         for (File candidate : PocketStorage.rct2Candidates(this)) {
             searched.append("\n").append(candidate.getAbsolutePath());
         }
-        showDialog(R.string.pocket_data_title,
-            getString(R.string.pocket_data_message, PocketStorage.preferredRct2Directory().getAbsolutePath(), searched),
-            R.string.pocket_data_retry, this::continueWithStorage);
+        dismissDialog();
+        dialog = new AlertDialog.Builder(this)
+            .setTitle(R.string.pocket_data_title)
+            .setMessage(getString(R.string.pocket_data_message, PocketStorage.preferredRct2Directory().getAbsolutePath(), searched))
+            .setCancelable(false)
+            .setPositiveButton(R.string.pocket_data_choose, (d, which) -> showStorageRootsBrowser())
+            .setNeutralButton(R.string.pocket_data_retry, (d, which) -> continueWithStorage())
+            .setNegativeButton(R.string.pocket_quit, (d, which) -> finish())
+            .show();
+    }
+
+    private void showStorageRootsBrowser() {
+        List<File> roots = PocketStorage.storageRoots(this);
+        if (roots.size() == 1) {
+            showFolderBrowser(roots.get(0), roots);
+            return;
+        }
+        String[] labels = new String[roots.size()];
+        for (int i = 0; i < roots.size(); i++) {
+            labels[i] = roots.get(i).getAbsolutePath();
+        }
+        dismissDialog();
+        dialog = new AlertDialog.Builder(this)
+            .setTitle(R.string.pocket_picker_roots)
+            .setItems(labels, (d, which) -> showFolderBrowser(roots.get(which), roots))
+            .setNegativeButton(R.string.pocket_picker_back, (d, which) -> continueWithStorage())
+            .setCancelable(false)
+            .show();
+    }
+
+    private void showFolderBrowser(File directory, List<File> roots) {
+        List<String> labels = new ArrayList<>();
+        List<Runnable> actions = new ArrayList<>();
+
+        if (PocketStorage.hasRct2Data(directory)) {
+            labels.add(getString(R.string.pocket_picker_use));
+            actions.add(() -> {
+                PocketStorage.saveRct2Directory(this, directory);
+                startGame();
+            });
+        }
+
+        boolean isRoot = false;
+        for (File root : roots) {
+            if (root.equals(directory)) {
+                isRoot = true;
+                break;
+            }
+        }
+        if (isRoot && roots.size() > 1) {
+            labels.add(getString(R.string.pocket_picker_up));
+            actions.add(this::showStorageRootsBrowser);
+        } else if (!isRoot && directory.getParentFile() != null) {
+            File parent = directory.getParentFile();
+            labels.add(getString(R.string.pocket_picker_up));
+            actions.add(() -> showFolderBrowser(parent, roots));
+        }
+
+        File[] children = directory.listFiles(File::isDirectory);
+        if (children != null) {
+            Arrays.sort(children, (a, b) -> a.getName().compareToIgnoreCase(b.getName()));
+            for (File child : children) {
+                if (child.getName().startsWith(".")) {
+                    continue;
+                }
+                String label = child.getName() + "/";
+                if (PocketStorage.hasRct2Data(child)) {
+                    label = label + " (RCT2)";
+                }
+                labels.add(label);
+                actions.add(() -> showFolderBrowser(child, roots));
+            }
+        }
+
+        dismissDialog();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+            .setTitle(directory.getAbsolutePath())
+            .setNegativeButton(R.string.pocket_picker_back, (d, which) -> continueWithStorage())
+            .setCancelable(false);
+        if (labels.isEmpty()) {
+            builder.setMessage(R.string.pocket_picker_empty);
+        } else {
+            builder.setItems(labels.toArray(new String[0]), (d, which) -> actions.get(which).run());
+        }
+        dialog = builder.show();
     }
 
     private boolean hasRequiredPermissions() {

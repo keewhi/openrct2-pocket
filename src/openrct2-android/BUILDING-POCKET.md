@@ -37,6 +37,17 @@ Without `OPENRCT2_KEYSTORE_FILE` and `OPENRCT2_KEYSTORE_PASSWORD`, the APK is si
 debug key in `app/external/`, so test builds install over each other. That key is public: sign
 published releases with your own.
 
+## Signing a public release
+
+Add two GitHub Actions repository secrets before pushing a release tag:
+
+- `OPENRCT2_KEYSTORE_BASE64` contains the Base64-encoded PKCS#12 keystore with the alias `openrct2`.
+- `OPENRCT2_KEYSTORE_PASSWORD` contains its password.
+
+Keep an offline backup of the keystore and password. Use the same key for every public APK so
+Android can install updates. Testing builds use the public debug key. Back up user data before
+replacing a test build with a public release.
+
 ## Minimum Android version
 
 Android 7.0 (API 24). OpenRCT2's and Pocket's own code builds for API 21, but the prebuilt
@@ -51,7 +62,7 @@ Going lower means rebuilding those dependencies for API 21.
 - RCT2 files are looked for, in order, in `openrct2-pocket/RCT2`, `rct2` and `RCT2` on the
   internal storage and then on each SD card. The first folder with `Data/g1.dat` is passed as
   `--rct2-data-path`. When none has it, the app explains where to copy the files instead of
-  starting the game.
+  starting the game, and offers a folder picker. Pocket remembers the selected folder.
 - `GameActivity` sets `OPENRCT2_HANDHELD=1`, `SDL_ANDROID_TRAP_BACK_BUTTON=1` (the system Back
   key reaches the game, where Pocket treats it as B) and `SDL_RENDER_SCALE_QUALITY=0`.
 - The park is saved when the app goes to the background, as Android may end a backgrounded app

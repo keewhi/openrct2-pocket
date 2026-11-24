@@ -33,8 +33,25 @@ jobs:
       - name: Build the game
         run: |
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DDISABLE_NETWORK=ON -DDISABLE_HTTP=ON \
-            -DDISABLE_DISCORD_RPC=ON -DDISABLE_GOOGLE_BENCHMARK=ON
+            -DDISABLE_DISCORD_RPC=ON -DDISABLE_GOOGLE_BENCHMARK=ON -DDOWNLOAD_OPENMUSIC=OFF \
+            -DDOWNLOAD_OPENSFX=OFF -DCMAKE_INSTALL_PREFIX="$PWD/build/ui-stage"
           cmake --build build
+      - name: Exercise Pocket menus at four screen sizes
+        shell: bash
+        run: |
+          set -eu
+          cmake --install build
+          for panel in 640x480 720x720 1024x768 1920x1080; do
+            mkdir -p "build/ui-profiles/$panel"
+            python3 scripts/handheld/verify-ui-redesign.py --build build \
+              --data build/ui-stage/share/openrct2 --profile "build/ui-profiles/$panel" \
+              --captures "build/ui-captures/$panel" --size "${panel%x*}" "${panel#*x}"
+          done
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: pocket-ui-captures
+          path: build/ui-captures/
   pak:
     name: Testing Pak
     needs: [format, native]

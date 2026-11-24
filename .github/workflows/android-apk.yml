@@ -13,6 +13,15 @@ on:
         required: false
         type: string
         default: 0.0.0-dev
+      sign-release:
+        description: Require the private signing key for a public release
+        type: boolean
+        default: false
+    secrets:
+      OPENRCT2_KEYSTORE_BASE64:
+        required: false
+      OPENRCT2_KEYSTORE_PASSWORD:
+        required: false
 jobs:
   apk:
     name: Build Android APK
@@ -25,7 +34,27 @@ jobs:
           fetch-depth: 0 # The commit count is the APK's version code.
       - run: git config --global --add safe.directory "$PWD"
       - name: Build
-        run: bash src/openrct2-android/ci-build.sh "${{ inputs.name }}" "${{ inputs.version }}"
+        env:
+          APK_NAME: ${{ inputs.name }}
+          APK_VERSION: ${{ inputs.version }}
+          SIGN_RELEASE: ${{ inputs.sign-release }}
+          OPENRCT2_KEYSTORE_BASE64: ${{ secrets.OPENRCT2_KEYSTORE_BASE64 }}
+          OPENRCT2_KEYSTORE_PASSWORD: ${{ secrets.OPENRCT2_KEYSTORE_PASSWORD }}
+        shell: bash
+        run: |
+          set -eu
+          if [[ "$SIGN_RELEASE" == "true" ]]; then
+            if [[ -z "$OPENRCT2_KEYSTORE_BASE64" || -z "$OPENRCT2_KEYSTORE_PASSWORD" ]]; then
+              echo "::error::Set OPENRCT2_KEYSTORE_BASE64 and OPENRCT2_KEYSTORE_PASSWORD to publish the Android APK."
+              exit 1
+            fi
+            umask 077
+            export OPENRCT2_KEYSTORE_FILE="$(mktemp "$RUNNER_TEMP/pocket-signing.XXXXXX")"
+            trap 'rm -f "$OPENRCT2_KEYSTORE_FILE"' EXIT
+            printf '%s' "$OPENRCT2_KEYSTORE_BASE64" | base64 --decode > "$OPENRCT2_KEYSTORE_FILE"
+          fi
+          unset OPENRCT2_KEYSTORE_BASE64
+          bash src/openrct2-android/ci-build.sh "$APK_NAME" "$APK_VERSION"
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.name }}

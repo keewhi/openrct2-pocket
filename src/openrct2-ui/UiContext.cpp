@@ -183,6 +183,13 @@ public:
 
     void SetFullscreenMode(FullscreenMode mode) override
     {
+        if (Handheld::IsEnabled())
+        {
+            const char* fs = std::getenv("OPENRCT2_HANDHELD_FULLSCREEN");
+            if (fs != nullptr && fs[0] == '1' && fs[1] == '\0')
+                mode = FullscreenMode::fullscreenDesktop;
+        }
+
 #ifdef __ANDROID__
         // Android does not stretch a window to the screen: a config without a fullscreen mode
         // left the game drawing its default 1280x720 window in a corner of larger panels. A

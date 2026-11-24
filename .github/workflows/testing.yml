@@ -41,3 +41,9 @@ jobs:
     uses: ./.github/workflows/brick-pak.yml
     with:
       name: OpenRCT2-Pocket-testing-${{ github.sha }}.zip
+  apk:
+    name: Testing APK
+    needs: [format, native]
+    uses: ./.github/workflows/android-apk.yml
+    with:
+      name: OpenRCT2-Pocket-android-testing-${{ github.sha }}.apk

@@ -190,6 +190,13 @@ public:
                 mode = FullscreenMode::fullscreenDesktop;
         }
 
+#ifdef __ANDROID__
+        // Android does not stretch a window to the screen: a config without a fullscreen mode
+        // left the game drawing its default 1280x720 window in a corner of larger panels. A
+        // handheld has no use for a window, so Pocket always covers the whole screen.
+        if (Handheld::IsEnabled())
+            mode = FullscreenMode::fullscreenDesktop;
+#endif
 #ifndef __EMSCRIPTEN__
         static constexpr int32_t kSDLFullscreenFlags[] = {
             0,

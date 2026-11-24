@@ -92,10 +92,20 @@ namespace OpenRCT2::Ui::Handheld
         {
             // Windows: navy outline with notched corners and a pale inner frame line.
             const auto face = selected ? Theme::gold : button ? Theme::raised : Theme::ink;
-            Fill(rt, pos + ScreenCoordsXY{ 2, 0 }, { size.width - 4, size.height }, Theme::edge);
-            Fill(rt, pos + ScreenCoordsXY{ 0, 2 }, { size.width, size.height - 4 }, Theme::edge);
-            Fill(rt, pos + ScreenCoordsXY{ 1, 1 }, { size.width - 2, size.height - 2 }, Theme::edge);
-            Fill(rt, pos + ScreenCoordsXY{ 2, 2 }, { size.width - 4, size.height - 4 }, face);
+            if (size.width >= 4 && size.height >= 4)
+            {
+                Fill(rt, pos + ScreenCoordsXY{ 2, 0 }, { size.width - 4, 1 }, Theme::edge);
+                Fill(rt, pos + ScreenCoordsXY{ 1, 1 }, { size.width - 2, 1 }, Theme::edge);
+                Fill(rt, pos + ScreenCoordsXY{ 0, 2 }, { 2, size.height - 4 }, Theme::edge);
+                Fill(rt, pos + ScreenCoordsXY{ size.width - 2, 2 }, { 2, size.height - 4 }, Theme::edge);
+                Fill(rt, pos + ScreenCoordsXY{ 1, size.height - 2 }, { size.width - 2, 1 }, Theme::edge);
+                Fill(rt, pos + ScreenCoordsXY{ 2, size.height - 1 }, { size.width - 4, 1 }, Theme::edge);
+                Fill(rt, pos + ScreenCoordsXY{ 2, 2 }, { size.width - 4, size.height - 4 }, face);
+            }
+            else
+            {
+                Fill(rt, pos, size, Theme::edge);
+            }
             if (size.width > 12 && size.height > 12)
             {
                 const auto line = static_cast<Drawing::PaletteIndex>(PocketPalette::separator);
@@ -110,12 +120,37 @@ namespace OpenRCT2::Ui::Handheld
         }
         const auto edge = selected ? Theme::gold : Theme::edge;
         const auto face = selected ? Theme::gold : button ? Theme::raised : Theme::ink;
-        Fill(rt, pos + ScreenCoordsXY{ 5, 0 }, { size.width - 10, size.height }, edge);
-        Fill(rt, pos + ScreenCoordsXY{ 2, 2 }, { size.width - 4, size.height - 4 }, edge);
-        Fill(rt, pos + ScreenCoordsXY{ 0, 5 }, { size.width, size.height - 10 }, edge);
-        Fill(rt, pos + ScreenCoordsXY{ 5, 1 }, { size.width - 10, size.height - 2 }, face);
-        Fill(rt, pos + ScreenCoordsXY{ 3, 3 }, { size.width - 6, size.height - 6 }, face);
-        Fill(rt, pos + ScreenCoordsXY{ 1, 5 }, { size.width - 2, size.height - 10 }, face);
+        if (size.width >= 10 && size.height >= 10)
+        {
+            // Non-overlapping perimeter strips and interior bands to avoid 6x software overdraw.
+            Fill(rt, pos + ScreenCoordsXY{ 5, 0 }, { size.width - 10, 1 }, edge);
+            Fill(rt, pos + ScreenCoordsXY{ 5, size.height - 1 }, { size.width - 10, 1 }, edge);
+            Fill(rt, pos + ScreenCoordsXY{ 2, 2 }, { 3, 1 }, edge);
+            Fill(rt, pos + ScreenCoordsXY{ size.width - 5, 2 }, { 3, 1 }, edge);
+            Fill(rt, pos + ScreenCoordsXY{ 2, size.height - 3 }, { 3, 1 }, edge);
+            Fill(rt, pos + ScreenCoordsXY{ size.width - 5, size.height - 3 }, { 3, 1 }, edge);
+            Fill(rt, pos + ScreenCoordsXY{ 2, 3 }, { 1, 2 }, edge);
+            Fill(rt, pos + ScreenCoordsXY{ size.width - 3, 3 }, { 1, 2 }, edge);
+            Fill(rt, pos + ScreenCoordsXY{ 2, size.height - 5 }, { 1, 2 }, edge);
+            Fill(rt, pos + ScreenCoordsXY{ size.width - 3, size.height - 5 }, { 1, 2 }, edge);
+            Fill(rt, pos + ScreenCoordsXY{ 0, 5 }, { 1, size.height - 10 }, edge);
+            Fill(rt, pos + ScreenCoordsXY{ size.width - 1, 5 }, { 1, size.height - 10 }, edge);
+
+            Fill(rt, pos + ScreenCoordsXY{ 5, 2 }, { size.width - 10, 1 }, face);
+            Fill(rt, pos + ScreenCoordsXY{ 3, 3 }, { size.width - 6, 2 }, face);
+            Fill(rt, pos + ScreenCoordsXY{ 1, 5 }, { size.width - 2, size.height - 10 }, face);
+            Fill(rt, pos + ScreenCoordsXY{ 3, size.height - 5 }, { size.width - 6, 2 }, face);
+            Fill(rt, pos + ScreenCoordsXY{ 5, size.height - 3 }, { size.width - 10, 2 }, face);
+        }
+        else
+        {
+            Fill(rt, pos + ScreenCoordsXY{ 5, 0 }, { size.width - 10, size.height }, edge);
+            Fill(rt, pos + ScreenCoordsXY{ 2, 2 }, { size.width - 4, size.height - 4 }, edge);
+            Fill(rt, pos + ScreenCoordsXY{ 0, 5 }, { size.width, size.height - 10 }, edge);
+            Fill(rt, pos + ScreenCoordsXY{ 5, 1 }, { size.width - 10, size.height - 2 }, face);
+            Fill(rt, pos + ScreenCoordsXY{ 3, 3 }, { size.width - 6, size.height - 6 }, face);
+            Fill(rt, pos + ScreenCoordsXY{ 1, 5 }, { size.width - 2, size.height - 10 }, face);
+        }
         Fill(rt, pos + ScreenCoordsXY{ 5, 1 }, { size.width - 10, 1 }, selected ? Theme::goldLight : Theme::highlight);
         if (button)
         {
@@ -148,15 +183,18 @@ namespace OpenRCT2::Ui::Handheld
         if (PocketPalette::Pixel() && size.width >= 3 && size.height >= 3)
         {
             // Pixel theme: a single notched pixel per corner, like a GBA window.
-            Fill(rt, pos + ScreenCoordsXY{ 1, 0 }, { size.width - 2, size.height }, colour);
+            Fill(rt, pos + ScreenCoordsXY{ 1, 0 }, { size.width - 2, 1 }, colour);
             Fill(rt, pos + ScreenCoordsXY{ 0, 1 }, { size.width, size.height - 2 }, colour);
+            Fill(rt, pos + ScreenCoordsXY{ 1, size.height - 1 }, { size.width - 2, 1 }, colour);
             return;
         }
         if (size.width < 4 || size.height < 4)
             return Fill(rt, pos, size, colour);
-        Fill(rt, pos + ScreenCoordsXY{ 2, 0 }, { size.width - 4, size.height }, colour);
-        Fill(rt, pos + ScreenCoordsXY{ 1, 1 }, { size.width - 2, size.height - 2 }, colour);
+        Fill(rt, pos + ScreenCoordsXY{ 2, 0 }, { size.width - 4, 1 }, colour);
+        Fill(rt, pos + ScreenCoordsXY{ 1, 1 }, { size.width - 2, 1 }, colour);
         Fill(rt, pos + ScreenCoordsXY{ 0, 2 }, { size.width, size.height - 4 }, colour);
+        Fill(rt, pos + ScreenCoordsXY{ 1, size.height - 2 }, { size.width - 2, 1 }, colour);
+        Fill(rt, pos + ScreenCoordsXY{ 2, size.height - 1 }, { size.width - 4, 1 }, colour);
     }
     inline void OutlineRound(
         Drawing::RenderTarget& rt, ScreenCoordsXY pos, ScreenSize size, Drawing::PaletteIndex colour, int thickness = 1)

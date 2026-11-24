@@ -71,7 +71,7 @@ Shortcuts and habits that only make sense with a controller in your hands.
 
 ## Controls
 
-| In the park | |
+| Button | In the park |
 |---|---|
 | D-pad | Move the camera (the cursor stays centred) |
 | A | Inspect what's under the cursor |
@@ -84,13 +84,21 @@ Shortcuts and habits that only make sense with a controller in your hands.
 | Start | Park dashboard (press again for the pause menu) |
 | Start + Select | Quit, with a Save and quit prompt |
 
-| In build tools | | In sheets and menus | |
-|---|---|---|---|
-| A | Place | D-pad | Choose |
-| X | Remove | A | Select |
-| Y | Adjust (turn, height, mode) | L1 / R1 | Change tab |
-| L2 / R2 | Height | X | Contextual action, when shown |
-| B | Back (hold: undo) | B | Back |
+| Button | In build tools |
+|---|---|
+| A | Place |
+| X | Remove |
+| Y | Adjust (turn, height, mode) |
+| L2 / R2 | Height |
+| B | Back (hold: undo) |
+
+| Button | In sheets and menus |
+|---|---|
+| D-pad | Choose |
+| A | Select |
+| L1 / R1 | Change tab |
+| X | Contextual action, when shown |
+| B | Back |
 
 The pause menu's **Controls...** page shows all of this in-game, including the hold gestures, and can replay the intro.
 
@@ -105,9 +113,20 @@ You need your own copy of RollerCoaster Tycoon 2 (it's sold on Steam and GOG). *
 
 Saves and settings live in `.userdata/tg5040/openrct2-pocket/` and survive updates. See [INSTALL.md](packaging/handheld/nextui/INSTALL.md) for updating, logs and troubleshooting.
 
+## Install on Android (R36S and other Android handhelds)
+
+Pocket also runs as an Android app, laid out for a 640×480 screen such as the R36S's and scaling up from there. It needs Android 7.0 or newer and a controller: the built-in pad of a handheld, or a pad connected to a phone, tablet or TV box. Touch does nothing in Pocket.
+
+1. Install the `-android.apk` from [Releases](../../releases). It installs beside upstream OpenRCT2 without replacing it.
+2. Copy the `Data`, `ObjData` and `Scenarios` folders from your RCT2 install into `openrct2-pocket/RCT2/` on the device's storage, so that `openrct2-pocket/RCT2/Data/g1.dat` exists. An `rct2` folder already set up for upstream OpenRCT2 also works, on the internal storage or an SD card.
+3. Launch **OpenRCT2 Pocket** and allow file access when asked (on Android 11 and later this opens a system screen; turn access on, then press Back).
+
+Saves and settings live in `openrct2-pocket/` on the internal storage. The park is saved whenever the app goes to the background, because Android may close a backgrounded app without warning. The system Back key works as B. To build the APK yourself, see [src/openrct2-android/BUILDING-POCKET.md](src/openrct2-android/BUILDING-POCKET.md).
+
 ## Building and testing
 
 - **Brick (AArch64) Pak:** [packaging/handheld/nextui/BUILD.md](packaging/handheld/nextui/BUILD.md)
+- **Android APK:** [src/openrct2-android/BUILDING-POCKET.md](src/openrct2-android/BUILDING-POCKET.md)
 - **Native Linux build and tests:** [docs/handheld/BUILDING.md](docs/handheld/BUILDING.md). Run with `OPENRCT2_HANDHELD=1` to get the handheld UI on a desktop.
 - **Standalone tests:** `cmake -S test/handheld -B build-input-tests -G Ninja && cmake --build build-input-tests && ctest --test-dir build-input-tests`
 - **In-game test drivers** (need your RCT2 data): `scripts/handheld/verify-ui-redesign.py --driver <name> ...`

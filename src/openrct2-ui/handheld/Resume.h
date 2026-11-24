@@ -16,7 +16,8 @@ namespace OpenRCT2::Ui::Handheld::Resume
     //   when the window loses focus or is minimised, or the app is sent to the background.
     // The title's Continue picks the newest park, so this one is offered next launch.
     // Saving during play is throttled to once a minute: a power key can repeat, and focus can
-    // flicker while a frontend overlay opens.
+    // flicker while a frontend overlay opens. Going to the background (Android) always saves,
+    // because the system may then end the process without telling the game.
     std::filesystem::path Path();
     // A park is being played (not the title or an editor) and the preference is on.
     bool Wanted();

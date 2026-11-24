@@ -18,6 +18,8 @@ namespace OpenRCT2::Ui::Handheld::Resume
     namespace
     {
         constexpr uint64_t kThrottleMs = 60000;
+        // SDL sends "minimised" and "entering the background" back to back; save once for both.
+        constexpr uint64_t kBackgroundThrottleMs = 2000;
         uint64_t lastSave{};
         bool everSaved{};
         bool discarded{};
@@ -70,8 +72,11 @@ namespace OpenRCT2::Ui::Handheld::Resume
                 sleeping = event.key.keysym.scancode == SDL_SCANCODE_POWER || event.key.keysym.scancode == SDL_SCANCODE_SLEEP;
                 break;
             case SDL_APP_WILLENTERBACKGROUND:
-                sleeping = true;
-                break;
+                // Android may stop a backgrounded app without another word, so this save skips
+                // the minute throttle: a focus-loss save earlier on must not leave it stale.
+                if (!everSaved || MenuFeel::Clock() - lastSave >= kBackgroundThrottleMs)
+                    Save();
+                return;
             case SDL_WINDOWEVENT:
                 sleeping = event.window.event == SDL_WINDOWEVENT_FOCUS_LOST || event.window.event == SDL_WINDOWEVENT_MINIMIZED;
                 break;

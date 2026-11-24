@@ -1,0 +1,33 @@
+# Builds the Android APK (R36S and other Android handhelds). Called by the testing and release
+# workflows.
+name: Android APK
+on:
+  workflow_call:
+    inputs:
+      name:
+        description: File name of the APK
+        required: true
+        type: string
+      version:
+        description: Version name shown in Android's app info
+        required: false
+        type: string
+        default: 0.0.0-dev
+jobs:
+  apk:
+    name: Build Android APK
+    runs-on: ubuntu-24.04
+    # OpenRCT2's Android image has the SDK, NDK, CMake and nlohmann-json build.gradle expects.
+    container: ghcr.io/openrct2/openrct2-build:26-android
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # The commit count is the APK's version code.
+      - run: git config --global --add safe.directory "$PWD"
+      - name: Build
+        run: bash src/openrct2-android/ci-build.sh "${{ inputs.name }}" "${{ inputs.version }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.name }}
+          path: ${{ inputs.name }}
+          if-no-files-found: error

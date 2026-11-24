@@ -11,21 +11,33 @@ jobs:
     uses: ./.github/workflows/brick-pak.yml
     with:
       name: OpenRCT2-Pocket-${{ github.ref_name }}.zip
+  apk:
+    uses: ./.github/workflows/android-apk.yml
+    with:
+      name: OpenRCT2-Pocket-${{ github.ref_name }}-android.apk
+      version: ${{ github.ref_name }}
   publish:
     name: Publish release
-    needs: pak
+    needs: [pak, apk]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/download-artifact@v4
         with:
           name: OpenRCT2-Pocket-${{ github.ref_name }}.zip
+      - uses: actions/download-artifact@v4
+        with:
+          name: OpenRCT2-Pocket-${{ github.ref_name }}-android.apk
       - uses: softprops/action-gh-release@v2
         with:
-          files: OpenRCT2-Pocket-${{ github.ref_name }}.zip
+          files: |
+            OpenRCT2-Pocket-${{ github.ref_name }}.zip
+            OpenRCT2-Pocket-${{ github.ref_name }}-android.apk
           prerelease: ${{ contains(github.ref_name, '-') }}
           generate_release_notes: true
           body: |
             OpenRCT2 Pocket for the TrimUI Brick (NextUI). Extract to the SD card root, then copy
             your own RollerCoaster Tycoon 2 `Data`, `ObjData` and `Scenarios` folders into
             `Tools/tg5040/OpenRCT2 Pocket.pak/RCT2/`. No RCT2 game data is included.
+            The Android APK (R36S and other Android handhelds, Android 7.0+) wants the same three
+            folders in `openrct2-pocket/RCT2/` on the device's storage.
             See the README for install details.

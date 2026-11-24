@@ -42,7 +42,13 @@ for i, value in enumerate(compile_args):
     elif value == "-isystem":
         includes.extend((value, compile_args[i + 1]))
 link = shlex.split(commands[-1])
-compiler = compile_args[0]
+# Ninja commands may include a compiler launcher such as ccache. Invoke the
+# configured compiler directly so the driver flags are passed to the compiler.
+compiler = next(
+    line.split("=", 1)[1]
+    for line in (build / "CMakeCache.txt").read_text().splitlines()
+    if line.startswith("CMAKE_CXX_COMPILER:")
+)
 start = link.index(compiler)
 end = link.index("&&", start) if "&&" in link[start:] else len(link)
 link = [v for v in link[start:end] if not v.endswith("/Ui.cpp.o")]

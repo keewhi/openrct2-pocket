@@ -145,6 +145,15 @@ namespace OpenRCT2::Ui::Handheld
                 return true;
             case SDL_CONTROLLERBUTTONUP:
                 return true;
+            case SDL_KEYDOWN:
+            case SDL_KEYUP:
+                // Android's system Back key (trapped so it does not close the app) is Back.
+                // Some Android handhelds send it instead of, or as well as, a pad button.
+                if (event.key.keysym.scancode != SDL_SCANCODE_AC_BACK)
+                    return false;
+                if (event.type == SDL_KEYDOWN && event.key.repeat == 0 && _armed)
+                    _actions.push_back(Action::back);
+                return true;
             case SDL_CONTROLLERAXISMOTION:
                 if (event.caxis.which == _instance
                     && (event.caxis.axis == SDL_CONTROLLER_AXIS_TRIGGERLEFT

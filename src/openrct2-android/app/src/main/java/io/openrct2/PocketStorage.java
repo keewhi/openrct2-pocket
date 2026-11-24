@@ -1,6 +1,7 @@
 package io.openrct2;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Environment;
 import android.util.Log;
 
@@ -19,13 +20,15 @@ import java.util.Set;
  *
  * Saves and settings live in their own folder, so Pocket can sit beside upstream OpenRCT2
  * (which uses /sdcard/openrct2-user) without the two sharing a config.ini. The player's own
- * RCT2 files are looked for in Pocket's folder first and then in upstream's /sdcard/rct2, on
- * the internal storage and on any SD card.
+ * RCT2 files are looked for in any folder chosen on first launch, then in Pocket's folder and
+ * upstream's /sdcard/rct2, on the internal storage and on any SD card.
  */
 final class PocketStorage {
     private static final String TAG = "OpenRCT2 Pocket";
     static final String USER_FOLDER = "openrct2-pocket";
     private static final String DEFAULT_CONFIG_ASSET = "pocket/config.ini";
+    private static final String PREFS_NAME = "openrct2_pocket";
+    private static final String PREF_RCT2_PATH = "rct2_data_path";
 
     private PocketStorage() {
     }
@@ -39,8 +42,24 @@ final class PocketStorage {
         return new File(userDirectory(), "RCT2");
     }
 
+    /** Returns the previously selected RCT2 directory, or null if unset. */
+    static File savedRct2Directory(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String saved = prefs.getString(PREF_RCT2_PATH, null);
+        if (saved == null || saved.isEmpty()) {
+            return null;
+        }
+        return new File(saved);
+    }
+
+    /** Saves a user-chosen RCT2 directory so future launches use it automatically. */
+    static void saveRct2Directory(Context context, File directory) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putString(PREF_RCT2_PATH, directory.getAbsolutePath()).apply();
+    }
+
     /** Roots of the internal storage and every mounted SD card, internal first. */
-    private static List<File> storageRoots(Context context) {
+    static List<File> storageRoots(Context context) {
         Set<File> roots = new LinkedHashSet<>();
         roots.add(Environment.getExternalStorageDirectory());
         File[] appDirectories = context.getExternalFilesDirs(null);
@@ -73,6 +92,10 @@ final class PocketStorage {
 
     /** The first folder holding the player's RCT2 files, or null. */
     static File findRct2Directory(Context context) {
+        File saved = savedRct2Directory(context);
+        if (saved != null && hasRct2Data(saved)) {
+            return saved;
+        }
         for (File candidate : rct2Candidates(context)) {
             if (hasRct2Data(candidate)) {
                 return candidate;
@@ -83,6 +106,9 @@ final class PocketStorage {
 
     /** True when the folder contains Data/g1.dat. Copies from Windows can differ in case. */
     static boolean hasRct2Data(File directory) {
+        if (directory == null || !directory.isDirectory()) {
+            return false;
+        }
         File data = childIgnoringCase(directory, "Data");
         return data != null && childIgnoringCase(data, "g1.dat") != null;
     }

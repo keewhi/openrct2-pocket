@@ -3,7 +3,7 @@
 </p>
 
 <p align="center"><b>RollerCoaster Tycoon 2, rebuilt to play like a handheld game.</b><br>
-A controller-first build of <a href="https://github.com/OpenRCT2/OpenRCT2">OpenRCT2</a> for the TrimUI Brick running NextUI.</p>
+A controller-first build of <a href="https://github.com/OpenRCT2/OpenRCT2">OpenRCT2</a> for Linux and Android.</p>
 
 <p align="center">
   <a href="https://github.com/keewhi/openrct2-pocket/releases"><img src="https://img.shields.io/badge/Download-latest%20release-2ea44f?style=for-the-badge&logo=github" alt="Download the latest release"></a>
@@ -13,18 +13,25 @@ A controller-first build of <a href="https://github.com/OpenRCT2/OpenRCT2">OpenR
   <a href="https://github.com/keewhi/openrct2-pocket/releases"><img src="https://img.shields.io/github/v/release/keewhi/openrct2-pocket?include_prereleases&label=version" alt="Latest version"></a>
   <a href="https://github.com/keewhi/openrct2-pocket/actions/workflows/testing.yml"><img src="https://img.shields.io/github/actions/workflow/status/keewhi/openrct2-pocket/testing.yml?branch=main&label=build" alt="Build status"></a>
   <a href="licence.txt"><img src="https://img.shields.io/badge/licence-GPLv3-blue" alt="Licence: GPLv3"></a>
-  <img src="https://img.shields.io/badge/device-TrimUI%20Brick-orange" alt="Device: TrimUI Brick">
 </p>
 
 Most ways of playing RCT2 on a handheld map the stick to a mouse and leave you squinting at desktop windows. Pocket takes a different approach: the camera moves and the cursor stays in the middle of the screen, every screen has a button footer, and management happens in sheets you page through with the shoulder buttons. It's meant to feel like a GBA-era sim that happens to run RCT2's simulation underneath.
 
 The park renderer, simulation, game actions and save format are OpenRCT2's own, so parks behave exactly as they do on PC. Pocket changes only presentation and input, and only when `OPENRCT2_HANDHELD=1` is set; without it this is ordinary desktop OpenRCT2.
 
-> **Status: beta.** It's playable on a real Brick, but expect rough edges. Back up your saves.
+## Play on your device
+
+You need the `Data`, `ObjData`, and `Scenarios` folders from your own copy of RollerCoaster Tycoon 2, available on Steam and GOG. Pocket builds do not include those files.
+
+| Platform | Where to start | Status |
+|---|---|---|
+| TrimUI Brick | [Brick Pak](../../releases) · [Install guide](#install-on-a-trimui-brick) | Beta on NextUI and NX Redux |
+| Android 7.0+ (ARM) | [APK install guide](#install-on-android) | Tested on Retroid Pocket Flip 2. A controller is required for gameplay. |
+| Other Linux devices | [Build and run Pocket mode](#run-on-other-linux-devices) | Build from source. Firmware and controller compatibility vary. |
 
 ## What's different
 
-- **Fixed centre cursor.** The D-pad moves the park, not a pointer. The footer tells you what A will do (*Inspect ride*, *Inspect guest*...) and a chip names what's under the cursor.
+- **Fixed centre cursor.** The D-pad or left stick moves the park under the cursor. The footer tells you what A will do (*Inspect ride*, *Inspect guest*...) and a chip names what's under the cursor.
 - **Pocket screens instead of desktop windows.** Guests, rides, staff, finances, research and marketing open as full-screen sheets with L1/R1 tabs and remembered focus.
 - **Building made for a D-pad.** Paths with Single, Line and Fill modes and live cost, plus terrain, water, scenery, trees, shops, flat rides, mazes and custom coasters.
 - **Handheld session basics.** Save slots, Save and quit, direct speed choices (Paused, 1x, 2x, 4x), and a quit shortcut that always offers to save.
@@ -59,7 +66,7 @@ Shortcuts and habits that only make sense with a controller in your hands.
 
 - **Ride along.** From a ride's page, the camera follows a train, zoomed in. A switches trains.
 - **Photo mode (L2, then Y).** All UI hidden; A saves a clean screenshot, Y freezes time.
-- **Never lose a park.** When the system closes the game (exiting from NextUI, low battery, power off), the park is autosaved first. You can also have the game skip the title and continue your last park.
+- **Resume your park.** Pocket saves on a normal system exit. You can also have the game skip the title and continue your last park.
 - **A controls guide and a first-run intro** that draw the device and ring the buttons each page is talking about.
 - **Settings:** theme (Daylight, Slate, Pixel), reduced motion, an optional smart cursor that settles onto rides and guests, and the HUD and device options above.
 
@@ -73,7 +80,7 @@ Shortcuts and habits that only make sense with a controller in your hands.
 
 | Button | In the park |
 |---|---|
-| D-pad | Move the camera (the cursor stays centred) |
+| D-pad / left stick | Move the camera (the cursor stays centred) |
 | A | Inspect what's under the cursor |
 | B | Back / close |
 | X | Rotate the view |
@@ -94,7 +101,7 @@ Shortcuts and habits that only make sense with a controller in your hands.
 
 | Button | In sheets and menus |
 |---|---|
-| D-pad | Choose |
+| D-pad / left stick | Choose |
 | A | Select |
 | L1 / R1 | Change tab |
 | X | Contextual action, when shown |
@@ -102,26 +109,30 @@ Shortcuts and habits that only make sense with a controller in your hands.
 
 The pause menu's **Controls...** page shows all of this in-game, including the hold gestures, and can replay the intro.
 
-## Install on a TrimUI Brick (NextUI)
+## Install on a TrimUI Brick
 
 You need your own copy of RollerCoaster Tycoon 2 (it's sold on Steam and GOG). **No game data is included here, and none should ever be added to this repository.**
 
 1. Get the Pak from [Releases](../../releases). Testing builds of every commit are attached to the [Testing workflow runs](../../actions/workflows/testing.yml) as artifacts. To build it yourself, run `packaging/handheld/nextui/ci-build.sh` (see [the NextUI packaging guide](packaging/handheld/nextui/BUILD.md)).
 2. Extract it to the SD card root so that `Tools/tg5040/OpenRCT2 Pocket.pak/launch.sh` exists. On frontends without platform folders (such as NX Redux), move the Pak to `Tools/OpenRCT2 Pocket.pak` instead; either layout works.
-3. Copy the `Data`, `ObjData` and `Scenarios` folders from your RCT2 install into `Tools/tg5040/OpenRCT2 Pocket.pak/RCT2/`. `RCT2/Data/g1.dat` must exist.
-4. Eject the card and launch **OpenRCT2 Pocket** from NextUI's **Tools** menu.
+3. Copy the `Data`, `ObjData` and `Scenarios` folders from your RCT2 install into the `RCT2/` folder inside the Pak you just installed. Check that `RCT2/Data/g1.dat` exists.
+4. Eject the card and launch **OpenRCT2 Pocket** from your firmware's **Tools** menu.
 
 Saves and settings live in `.userdata/tg5040/openrct2-pocket/` and survive updates. See [INSTALL.md](packaging/handheld/nextui/INSTALL.md) for updating, logs and troubleshooting.
 
-## Install on Android (R36S and other Android handhelds)
+## Install on Android
 
-Pocket also runs as an Android app, laid out for a 640×480 screen such as the R36S's and scaling up from there. It needs Android 7.0 or newer and a controller: the built-in pad of a handheld, or a pad connected to a phone, tablet or TV box. Touch does nothing in Pocket.
+Pocket requires Android 7.0 or newer on a 32-bit or 64-bit ARM device. Use the built-in controls on a handheld or connect a controller. The setup dialog supports touch and the D-pad.
 
-1. Install the `-android.apk` from [Releases](../../releases). It installs beside upstream OpenRCT2 without replacing it.
-2. Copy the `Data`, `ObjData` and `Scenarios` folders from your RCT2 install into `openrct2-pocket/RCT2/` on the device's storage, so that `openrct2-pocket/RCT2/Data/g1.dat` exists. An `rct2` folder already set up for upstream OpenRCT2 also works, on the internal storage or an SD card.
-3. Launch **OpenRCT2 Pocket** and allow file access when asked (on Android 11 and later this opens a system screen; turn access on, then press Back).
+1. Install an `-android.apk` from [Releases](../../releases) when available, or download a test APK from the **Artifacts** section of a successful [Testing run](../../actions/workflows/testing.yml?query=branch%3Amain). Sign in to GitHub to download the artifact and unzip it to get the APK.
+2. Launch **OpenRCT2 Pocket** and allow file access when prompted. Pocket checks for existing game data in `openrct2-pocket/RCT2`, `rct2`, and `RCT2` on internal storage and mounted SD cards.
+3. If it cannot find your data, choose **Choose folder** and select the parent folder containing `Data`, `ObjData`, and `Scenarios`. Pocket remembers your choice. You can also put the files in `openrct2-pocket/RCT2/` and choose **Check again**.
 
-Saves and settings live in `openrct2-pocket/` on the internal storage. The park is saved whenever the app goes to the background, because Android may close a backgrounded app without warning. The system Back key works as B. To build the APK yourself, see [src/openrct2-android/BUILDING-POCKET.md](src/openrct2-android/BUILDING-POCKET.md).
+Saves and settings live in `openrct2-pocket/` on internal storage. Back them up before switching from a test APK to a signed release. Android requires reinstalling when the APK signing key changes.
+
+## Run on other Linux devices
+
+[Build OpenRCT2 Pocket for your device](docs/handheld/BUILDING.md), connect an SDL-mapped controller, and launch with `OPENRCT2_HANDHELD=1`. You can set `OPENRCT2_HANDHELD_LEFT_STICK=0` to use the D-pad alone. The repository includes an experimental [PortMaster launcher](packaging/handheld/OpenRCT2-Handheld.sh) that needs a build compatible with the target firmware.
 
 ## Building and testing
 

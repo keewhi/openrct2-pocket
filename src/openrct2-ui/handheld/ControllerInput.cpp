@@ -189,6 +189,15 @@ namespace OpenRCT2::Ui::Handheld
             return result;
         }
         auto held = [this](SDL_GameControllerButton button) { return SDL_GameControllerGetButton(_controller, button) != 0; };
+        const auto* stickSetting = std::getenv("OPENRCT2_HANDHELD_LEFT_STICK");
+        const bool useStick = stickSetting == nullptr || std::string_view(stickSetting) != "0";
+        auto stickDirection = [this, useStick](SDL_GameControllerAxis axis) {
+            constexpr int deadZone = 16000;
+            const int value = useStick ? SDL_GameControllerGetAxis(_controller, axis) : 0;
+            return (value > deadZone) - (value < -deadZone);
+        };
+        const int stickX = stickDirection(SDL_CONTROLLER_AXIS_LEFTX);
+        const int stickY = stickDirection(SDL_CONTROLLER_AXIS_LEFTY);
         // Emergency quit must work even if Start already opened and suspended a menu.
         const bool quitChord = held(SDL_CONTROLLER_BUTTON_START) && held(SDL_CONTROLLER_BUTTON_BACK);
         if (quitChord && !_quitHeld)
@@ -207,7 +216,7 @@ namespace OpenRCT2::Ui::Handheld
                 any |= held(static_cast<SDL_GameControllerButton>(i));
             any |= SDL_GameControllerGetAxis(_controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT) > 16000
                 || SDL_GameControllerGetAxis(_controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT) > 16000;
-            _armed = !any;
+            _armed = !any && stickX == 0 && stickY == 0;
             _lastTick = now;
             return result;
         }
@@ -215,8 +224,13 @@ namespace OpenRCT2::Ui::Handheld
         const auto elapsed = std::min<uint32_t>(now - _lastTick, 50);
         _lastTick = now;
         result.actions = std::exchange(_actions, {});
-        const int x = held(SDL_CONTROLLER_BUTTON_DPAD_RIGHT) - held(SDL_CONTROLLER_BUTTON_DPAD_LEFT);
-        const int y = held(SDL_CONTROLLER_BUTTON_DPAD_DOWN) - held(SDL_CONTROLLER_BUTTON_DPAD_UP);
+        const bool right = held(SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
+        const bool left = held(SDL_CONTROLLER_BUTTON_DPAD_LEFT);
+        const bool down = held(SDL_CONTROLLER_BUTTON_DPAD_DOWN);
+        const bool up = held(SDL_CONTROLLER_BUTTON_DPAD_UP);
+        const bool useDpad = right || left || down || up;
+        const int x = useDpad ? right - left : stickX;
+        const int y = useDpad ? down - up : stickY;
         result.heldX = x;
         result.heldY = y;
         result.backHeld = held(

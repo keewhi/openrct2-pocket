@@ -57,8 +57,11 @@ int main(int argc, char** argv)
 {
     try
     {
-        if (argc != 4)
+        if (argc != 4 && argc != 6)
             return 2;
+        const int width = argc == 6 ? std::stoi(argv[4]) : 512;
+        const int height = argc == 6 ? std::stoi(argv[5]) : 384;
+        Check(width > 0 && height > 0, "Invalid window size");
         SDL_setenv("OPENRCT2_HANDHELD", "1", 1);
         gCustomOpenRCT2DataPath = argv[1];
         gCustomUserDataPath = argv[2];
@@ -68,11 +71,16 @@ int main(int argc, char** argv)
         auto ui = Ui::CreateUiContext(*env);
         auto context = CreateContext(std::move(env), Audio::CreateDummyAudioContext(), std::move(ui));
         Config::SetDefaults();
-        Config::Get().general.windowWidth = 512;
-        Config::Get().general.windowHeight = 384;
+        Config::Get().general.windowWidth = width;
+        Config::Get().general.windowHeight = height;
+        Config::Get().general.fullscreenMode = 0;
         Config::Get().general.windowScale = 1;
         Check(context->Initialise(), "Context failed");
         context->GetUiContext().CreateWindow();
+        const ScreenSize screen{ context->GetUiContext().GetWidth(), context->GetUiContext().GetHeight() };
+        const int scale = H::Layout::AutoScale(width, height);
+        Check(screen.width == width / scale && screen.height == height / scale, "Unexpected logical canvas size");
+        std::cout << width << 'x' << height << " panel, " << screen.width << 'x' << screen.height << " canvas\n";
         auto* wm = Ui::GetWindowManager();
         wm->CloseAllExceptFlags({});
         WindowCullDead();
@@ -94,7 +102,7 @@ int main(int argc, char** argv)
         FontSpriteInitialiseCharacters();
         auto capture = [&](const char* name, bool placement = false) {
             Drawing::X8DrawingEngine engine(context->GetUiContext());
-            engine.Resize(512, 384);
+            engine.Resize(screen.width, screen.height);
             engine.BeginDraw();
             auto& rt = *engine.getRT();
             GfxClear(rt, Drawing::PaletteIndex::pi10);
@@ -102,7 +110,7 @@ int main(int argc, char** argv)
             {
                 H::Paths::DrawOverlay(rt, H::Concept::kOrigin);
                 H::DrawPathFooter(
-                    rt, { 512, 384 }, "", H::Paths::IsRemoving(), H::Paths::IsConnected(), H::Paths::IsAdjusting(),
+                    rt, screen, "", H::Paths::IsRemoving(), H::Paths::IsConnected(), H::Paths::IsAdjusting(),
                     H::Paths::ConnectedReady());
             }
             else
@@ -116,9 +124,9 @@ int main(int argc, char** argv)
             for (int i = 0; i < pal->numColours; i++)
                 palette[pal->startIndex + i] = { pal->palette[i].blue, pal->palette[i].green, pal->palette[i].red, 255 };
             std::ofstream out(std::filesystem::path(argv[3]) / name, std::ios::binary);
-            out << "P6\n512 384\n255\n";
-            for (int y = 0; y < 384; y++)
-                for (int x = 0; x < 512; x++)
+            out << "P6\n" << screen.width << ' ' << screen.height << "\n255\n";
+            for (int y = 0; y < screen.height; y++)
+                for (int x = 0; x < screen.width; x++)
                 {
                     const auto c = palette[static_cast<unsigned>(rt.bits[y * rt.LineStride() + x])];
                     const char rgb[] = { static_cast<char>(c.red), static_cast<char>(c.green), static_cast<char>(c.blue) };
@@ -352,7 +360,8 @@ int main(int argc, char** argv)
                 && model.stats == H::RideManagement::Presentation(H::RideManagement::View::statistics, 0, {}, target).stats,
             "Statistics tab changed native data");
         Check(
-            H::MeasureManagement({ 496, H::Layout::ContentHeight({ 512, 384 }) }, model).capacity >= model.rows.size(),
+            H::MeasureManagement({ screen.width - 2 * H::Layout::margin, H::Layout::ContentHeight(screen) }, model).capacity
+                >= model.rows.size(),
             "Statistics actions need another page");
         capture("ride-statistics.ppm");
         FocusRideTabAction("Customers...");

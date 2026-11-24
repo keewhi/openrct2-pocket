@@ -16,6 +16,10 @@ jobs:
     with:
       name: OpenRCT2-Pocket-${{ github.ref_name }}-android.apk
       version: ${{ github.ref_name }}
+      sign-release: true
+    secrets:
+      OPENRCT2_KEYSTORE_BASE64: ${{ secrets.OPENRCT2_KEYSTORE_BASE64 }}
+      OPENRCT2_KEYSTORE_PASSWORD: ${{ secrets.OPENRCT2_KEYSTORE_PASSWORD }}
   publish:
     name: Publish release
     needs: [pak, apk]

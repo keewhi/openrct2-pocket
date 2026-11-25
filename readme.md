@@ -28,7 +28,7 @@ You need the `Data`, `ObjData`, and `Scenarios` folders from your own copy of Ro
 
 | Platform | Where to start | Status |
 |---|---|---|
-| TrimUI Brick | [Brick Pak](../../releases) · [Install guide](#install-on-a-trimui-brick) | Beta on NextUI and NX Redux |
+| TrimUI Brick | [Brick Pak](https://github.com/keewhi/openrct2-pocket/releases) · [Install guide](#install-on-a-trimui-brick) | Beta on NextUI and NX Redux |
 | Android 7.0+ (ARM) | [APK install guide](#install-on-android) | Tested on Retroid Pocket Flip 2. A controller is required for gameplay. |
 | Other Linux devices | [Build and run Pocket mode](#run-on-other-linux-devices) | Build from source. Firmware and controller compatibility vary. |
 
@@ -38,12 +38,19 @@ You need the `Data`, `ObjData`, and `Scenarios` folders from your own copy of Ro
 - **Pocket screens instead of desktop windows.** Guests, rides, staff, finances, research and marketing open as full-screen sheets with L1/R1 tabs and remembered focus.
 - **Building made for a D-pad.** Paths with Single, Line and Fill modes and live cost, plus terrain, water, scenery, trees, shops, flat rides, mazes and custom coasters.
 - **Handheld session basics.** Save slots, Save and quit, direct speed choices (Paused, 1x, 2x, 4x), and a quit shortcut that always offers to save.
-- **Built for the screen.** A 512×384 logical canvas at 2× on the Brick's 1024×768 display, with its own Pocket Sans type.
+- **Built for the screen.** Pixel-sharp whole-number scaling: a 512×384 canvas at 2× on the Brick's 1024×768 display, 640×360 on 16:9 handhelds, with its own Pocket Sans type.
 
 <p align="center">
-  <img src="docs/handheld/screenshots/title.png" width="32%" alt="Title menu">
-  <img src="docs/handheld/screenshots/build.png" width="32%" alt="Build menu">
-  <img src="docs/handheld/screenshots/paths.png" width="32%" alt="Paths and queues menu">
+  <img src="docs/handheld/screenshots/explore.png" width="49%" alt="Exploring the park: the cursor stays centred and the footer says what A does">
+  <img src="docs/handheld/screenshots/build.png" width="49%" alt="Build menu">
+</p>
+<p align="center">
+  <img src="docs/handheld/screenshots/ride-picker.png" width="49%" alt="Ride picker with a large preview">
+  <img src="docs/handheld/screenshots/coaster.png" width="49%" alt="Building a coaster's chain lift piece by piece">
+</p>
+<p align="center">
+  <img src="docs/handheld/screenshots/dashboard.png" width="49%" alt="Park dashboard">
+  <img src="docs/handheld/screenshots/ride-sheet.png" width="49%" alt="A ride's page: open, test, operations and settings">
 </p>
 
 ## Made for a handheld
@@ -52,7 +59,7 @@ Shortcuts and habits that only make sense with a controller in your hands.
 
 <p align="center">
   <img src="docs/handheld/screenshots/quick-menu.png" width="49%" alt="Quick menu: hold L2 and point with the D-pad">
-  <img src="docs/handheld/screenshots/goal-hud.png" width="49%" alt="The scenario goal as a progress card under the HUD">
+  <img src="docs/handheld/screenshots/inbox.png" width="49%" alt="Inbox: problems that need attention, with what fixes them">
 </p>
 
 - **Quick menu (hold L2).** Build, Rides, Staff, Guests, Finances, the park map, pause, and "Again" (the last Build card) around the cursor. Point and release.
@@ -62,11 +69,6 @@ Shortcuts and habits that only make sense with a controller in your hands.
 - **Your goal at a glance.** The scenario objective sits under the HUD as a progress bar, with the months left (or the park rating, if that's what's holding you back). The clock and battery level can go in the top bar too.
 - **Inbox (hold Y).** Everything that needs you right now (breakdowns, full queues, hungry guests), above the park news. A tap on Y glides to each problem in turn.
 
-<p align="center">
-  <img src="docs/handheld/screenshots/auto-access.png" width="49%" alt="Entrance, exit, queue and exit path laid automatically">
-  <img src="docs/handheld/screenshots/inbox.png" width="49%" alt="Inbox: problems that need attention, with what fixes them">
-</p>
-
 - **Ride along.** From a ride's page, the camera follows a train, zoomed in. A switches trains.
 - **Photo mode (L2, then Y).** All UI hidden; A saves a clean screenshot, Y freezes time.
 - **Resume your park.** Pocket saves on a normal system exit. You can also have the game skip the title and continue your last park.
@@ -74,9 +76,8 @@ Shortcuts and habits that only make sense with a controller in your hands.
 - **Settings:** theme (Daylight, Slate, Pixel), reduced motion, an optional smart cursor that settles onto rides and guests, and the HUD and device options above.
 
 <p align="center">
-  <img src="docs/handheld/screenshots/ride-along.png" width="32%" alt="Riding along with a train">
-  <img src="docs/handheld/screenshots/controls-guide.png" width="32%" alt="Controls guide with the device drawn">
-  <img src="docs/handheld/screenshots/photo-mode.png" width="32%" alt="A photo taken in photo mode">
+  <img src="docs/handheld/screenshots/ride-along.png" width="49%" alt="Riding along with a train">
+  <img src="docs/handheld/screenshots/pause.png" width="49%" alt="Pause menu with speed and display options">
 </p>
 
 ## Controls
@@ -116,7 +117,7 @@ The pause menu's **Controls...** page shows all of this in-game, including the h
 
 You need your own copy of RollerCoaster Tycoon 2 (it's sold on Steam and GOG). **No game data is included here, and none should ever be added to this repository.**
 
-1. Download the Brick Pak ZIP above or find it under **Assets** on the [Releases page](../../releases).
+1. Download the Brick Pak ZIP above or find it under **Assets** on the [Releases page](https://github.com/keewhi/openrct2-pocket/releases).
 2. Extract it to the SD card root so that `Tools/tg5040/OpenRCT2 Pocket.pak/launch.sh` exists. On frontends without platform folders (such as NX Redux), move the Pak to `Tools/OpenRCT2 Pocket.pak` instead; either layout works.
 3. Copy the `Data`, `ObjData` and `Scenarios` folders from your RCT2 install into the `RCT2/` folder inside the Pak you just installed. Check that `RCT2/Data/g1.dat` exists.
 4. Eject the card and launch **OpenRCT2 Pocket** from your firmware's **Tools** menu.
@@ -127,7 +128,7 @@ Saves and settings live in `.userdata/tg5040/openrct2-pocket/` and survive updat
 
 Pocket requires Android 7.0 or newer on a 32-bit or 64-bit ARM device. Use the built-in controls on a handheld or connect a controller. The setup dialog supports touch and the D-pad.
 
-1. Download and install the Android APK above or find the `-android.apk` under **Assets** on the [Releases page](../../releases).
+1. Download and install the Android APK above or find the `-android.apk` under **Assets** on the [Releases page](https://github.com/keewhi/openrct2-pocket/releases).
 2. Launch **OpenRCT2 Pocket** and allow file access when prompted. Pocket checks for existing game data in `openrct2-pocket/RCT2`, `rct2`, and `RCT2` on internal storage and mounted SD cards.
 3. If it cannot find your data, choose **Choose folder** and select the parent folder containing `Data`, `ObjData`, and `Scenarios`. Pocket remembers your choice. You can also put the files in `openrct2-pocket/RCT2/` and choose **Check again**.
 
@@ -139,7 +140,7 @@ Saves and settings live in `openrct2-pocket/` on internal storage. Back them up 
 
 ## Building and testing
 
-For a test APK or Brick Pak, open a successful [Testing workflow run](../../actions/workflows/testing.yml) and download the ZIP under **Artifacts**. Sign in to GitHub to download it, then extract the APK or Pak ZIP inside.
+For a test APK or Brick Pak, open a successful [Testing workflow run](https://github.com/keewhi/openrct2-pocket/actions/workflows/testing.yml) and download the ZIP under **Artifacts**. Sign in to GitHub to download it, then extract the APK or Pak ZIP inside.
 
 - **Brick (AArch64) Pak:** [packaging/handheld/nextui/BUILD.md](packaging/handheld/nextui/BUILD.md)
 - **Android APK:** [src/openrct2-android/BUILDING-POCKET.md](src/openrct2-android/BUILDING-POCKET.md)

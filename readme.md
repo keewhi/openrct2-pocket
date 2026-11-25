@@ -6,8 +6,11 @@
 A controller-first build of <a href="https://github.com/OpenRCT2/OpenRCT2">OpenRCT2</a> for Linux and Android.</p>
 
 <p align="center">
-  <a href="https://github.com/keewhi/openrct2-pocket/releases"><img src="https://img.shields.io/badge/Download-latest%20release-2ea44f?style=for-the-badge&logo=github" alt="Download the latest release"></a>
+  <a href="https://github.com/keewhi/openrct2-pocket/releases/download/v0.4.2-beta.1/OpenRCT2-Pocket-v0.4.2-beta.1-android.apk"><img src="https://img.shields.io/badge/Download-Android%20APK-2ea44f?style=for-the-badge&logo=android" alt="Download Android APK"></a>
+  <a href="https://github.com/keewhi/openrct2-pocket/releases/download/v0.4.2-beta.1/OpenRCT2-Pocket-v0.4.2-beta.1.zip"><img src="https://img.shields.io/badge/Download-Brick%20Pak-2ea44f?style=for-the-badge" alt="Download Brick Pak"></a>
 </p>
+
+<p align="center"><a href="https://github.com/keewhi/openrct2-pocket/releases/tag/v0.4.2-beta.1">Pocket Beta 3</a> · <a href="https://github.com/keewhi/openrct2-pocket/releases">All releases</a></p>
 
 <p align="center">
   <a href="https://github.com/keewhi/openrct2-pocket/releases"><img src="https://img.shields.io/github/v/release/keewhi/openrct2-pocket?include_prereleases&label=version" alt="Latest version"></a>
@@ -113,7 +116,7 @@ The pause menu's **Controls...** page shows all of this in-game, including the h
 
 You need your own copy of RollerCoaster Tycoon 2 (it's sold on Steam and GOG). **No game data is included here, and none should ever be added to this repository.**
 
-1. Get the Pak from [Releases](../../releases). Testing builds of every commit are attached to the [Testing workflow runs](../../actions/workflows/testing.yml) as artifacts. To build it yourself, run `packaging/handheld/nextui/ci-build.sh` (see [the NextUI packaging guide](packaging/handheld/nextui/BUILD.md)).
+1. Download the Brick Pak ZIP above or find it under **Assets** on the [Releases page](../../releases).
 2. Extract it to the SD card root so that `Tools/tg5040/OpenRCT2 Pocket.pak/launch.sh` exists. On frontends without platform folders (such as NX Redux), move the Pak to `Tools/OpenRCT2 Pocket.pak` instead; either layout works.
 3. Copy the `Data`, `ObjData` and `Scenarios` folders from your RCT2 install into the `RCT2/` folder inside the Pak you just installed. Check that `RCT2/Data/g1.dat` exists.
 4. Eject the card and launch **OpenRCT2 Pocket** from your firmware's **Tools** menu.
@@ -124,7 +127,7 @@ Saves and settings live in `.userdata/tg5040/openrct2-pocket/` and survive updat
 
 Pocket requires Android 7.0 or newer on a 32-bit or 64-bit ARM device. Use the built-in controls on a handheld or connect a controller. The setup dialog supports touch and the D-pad.
 
-1. Install an `-android.apk` from [Releases](../../releases) when available, or download a test APK from the **Artifacts** section of a successful [Testing run](../../actions/workflows/testing.yml?query=branch%3Amain). Sign in to GitHub to download the artifact and unzip it to get the APK.
+1. Download and install the Android APK above or find the `-android.apk` under **Assets** on the [Releases page](../../releases).
 2. Launch **OpenRCT2 Pocket** and allow file access when prompted. Pocket checks for existing game data in `openrct2-pocket/RCT2`, `rct2`, and `RCT2` on internal storage and mounted SD cards.
 3. If it cannot find your data, choose **Choose folder** and select the parent folder containing `Data`, `ObjData`, and `Scenarios`. Pocket remembers your choice. You can also put the files in `openrct2-pocket/RCT2/` and choose **Check again**.
 
@@ -135,6 +138,8 @@ Saves and settings live in `openrct2-pocket/` on internal storage. Back them up 
 [Build OpenRCT2 Pocket for your device](docs/handheld/BUILDING.md), connect an SDL-mapped controller, and launch with `OPENRCT2_HANDHELD=1`. You can set `OPENRCT2_HANDHELD_LEFT_STICK=0` to use the D-pad alone. The repository includes an experimental [PortMaster launcher](packaging/handheld/OpenRCT2-Handheld.sh) that needs a build compatible with the target firmware.
 
 ## Building and testing
+
+For a test APK or Brick Pak, open a successful [Testing workflow run](../../actions/workflows/testing.yml) and download the ZIP under **Artifacts**. Sign in to GitHub to download it, then extract the APK or Pak ZIP inside.
 
 - **Brick (AArch64) Pak:** [packaging/handheld/nextui/BUILD.md](packaging/handheld/nextui/BUILD.md)
 - **Android APK:** [src/openrct2-android/BUILDING-POCKET.md](src/openrct2-android/BUILDING-POCKET.md)

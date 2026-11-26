@@ -141,7 +141,7 @@ namespace OpenRCT2::Ui::Handheld::QuickWheel
         const std::string top = state.selected ? name(*state.selected) : std::string("Quick menu");
         const std::string bottom = state.tapped ? (state.selected ? "A choose / B close" : "D-pad to point")
             : state.selected                    ? "Release L2"
-                                                : "Move with the D-pad";
+                                                : "Point with D-pad";
         const int tw = TextWidth(top, true), bw = TextWidth(bottom);
         DrawStrongText(rt, hubPos + ScreenCoordsXY{ (hub.width - tw) / 2, 7 }, "{WHITE}" + top);
         DrawModernText(rt, hubPos + ScreenCoordsXY{ (hub.width - bw) / 2, 23 }, "{MUTED}" + bottom);

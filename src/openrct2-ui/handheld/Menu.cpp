@@ -638,6 +638,12 @@ namespace OpenRCT2::Ui::Windows
         std::vector<Handheld::ResearchCatalog::Target> _researchCatalog;
         std::optional<Handheld::ResearchCatalog::Target> _researchItem;
         size_t _researchCatalogFocus{};
+        // Sheets laid out for the Brick's 512x384 canvas keep their width, and stop above the
+        // footer on a shorter canvas (640x360 on 16:9 handhelds).
+        static int SheetHeight()
+        {
+            return std::min(348, ContextGetHeight() - 36);
+        }
         bool parkInformation() const
         {
             return _page == Page::researchCatalog || _page == Page::researchItem || _page == Page::financeHistory
@@ -2019,14 +2025,19 @@ namespace OpenRCT2::Ui::Windows
                                          ? 330
                                          : size.width,
                                      size.height };
+            // Information sheets are sized for a 4:3 screen; on a shorter one (16:9 handhelds) they
+            // stop above the footer instead of running underneath it.
+            const int footerTop = ContextGetHeight() - Handheld::Layout::actionHeight - Handheld::Layout::margin;
             const ScreenSize bounds = fullScreen() ? ScreenSize{ ContextGetWidth(), ContextGetHeight() }
-                : information()                    ? ScreenSize{ 330, _page == Page::ride ? 340 : 310 }
+                : information()                    ? ScreenSize{ 330, std::min(_page == Page::ride ? 340 : 310, footerTop - 8) }
                                                    : target;
             WindowSetResize(*this, bounds, bounds);
             WindowSetPosition(
                 *this,
-                fullScreen() ? ScreenCoordsXY{ 0, 0 }
-                             : ScreenCoordsXY{ 8, std::max(8, (ContextGetHeight() - bounds.height) / 2) });
+                fullScreen()
+                    ? ScreenCoordsXY{ 0, 0 }
+                    : ScreenCoordsXY{
+                          8, std::clamp((ContextGetHeight() - bounds.height) / 2, 8, std::max(8, footerTop - bounds.height)) });
         }
 
         std::vector<Handheld::ControlHint> _guideHints = Handheld::LastControlHints;
@@ -9137,7 +9148,7 @@ namespace OpenRCT2::Ui::Windows
                 }
                 if (!_status.empty())
                     model.status = _status;
-                Handheld::DrawManagementContent(rt, { 8, 8 }, { 496, 348 }, model);
+                Handheld::DrawManagementContent(rt, { 8, 8 }, { 496, SheetHeight() }, model);
                 std::vector<Handheld::ControlHint> hints{ { "D-pad", "Read" } };
                 if (_page == Page::designWarnings)
                     hints.push_back({ "Left/Right", "Detail" });
@@ -9199,7 +9210,7 @@ namespace OpenRCT2::Ui::Windows
                     if (_designFile && !Handheld::FileBrowsing::Current(*_designFile))
                         model.status = "File changed. Back and select again.";
                 }
-                Handheld::DrawManagementContent(rt, { 8, 8 }, { 496, 348 }, model);
+                Handheld::DrawManagementContent(rt, { 8, 8 }, { 496, SheetHeight() }, model);
                 if (_page == Page::designInspect && _focus.index() <= 2 && _designFilePreview
                     && _designFilePreview->drawPreview)
                 {
@@ -9207,8 +9218,8 @@ namespace OpenRCT2::Ui::Windows
                     if (ClipRenderTarget(preview, rt, { 420, 166 }, 60, 62))
                         _designFilePreview->drawPreview(preview);
                 }
-                Handheld::Concept::Box(rt, { 8, 359 }, { 496, 25 });
-                Handheld::DrawModernText(rt, { 16, 369 }, "D-pad Select   A Choose   B Back", {}, 480);
+                Handheld::Concept::Box(rt, { 8, ContextGetHeight() - 25 }, { 496, 25 });
+                Handheld::DrawModernText(rt, { 16, ContextGetHeight() - 15 }, "D-pad Select   A Choose   B Back", {}, 480);
                 return;
             }
             if ((_page == Page::parkFiles || _page == Page::saveFiles || _page == Page::designFiles))
@@ -9271,9 +9282,9 @@ namespace OpenRCT2::Ui::Windows
                 model.selected = _focus.index();
                 model.bodyLines = { _saveDraft ? _saveDraft->directory.u8string() : _files.directory.u8string() };
                 model.status = _status.empty() ? "Previous save kept until publication succeeds" : _status;
-                Handheld::DrawManagementContent(rt, { 8, 8 }, { 496, 348 }, model);
-                Handheld::Concept::Box(rt, { 8, 359 }, { 496, 25 });
-                Handheld::DrawModernText(rt, { 16, 369 }, "D-pad Select   A Choose   B Cancel", {}, 480);
+                Handheld::DrawManagementContent(rt, { 8, 8 }, { 496, SheetHeight() }, model);
+                Handheld::Concept::Box(rt, { 8, ContextGetHeight() - 25 }, { 496, 25 });
+                Handheld::DrawModernText(rt, { 16, ContextGetHeight() - 15 }, "D-pad Select   A Choose   B Cancel", {}, 480);
                 return;
             }
             if (_page == Page::saveName || _page == Page::scenerySearch)
@@ -9302,7 +9313,7 @@ namespace OpenRCT2::Ui::Windows
                     model.bodyLines.assign(10, "");
                 if (_page == Page::financeHistory)
                     model.bodyLines.assign(8, "");
-                Handheld::DrawManagementContent(rt, { 8, 8 }, { 496, 348 }, model);
+                Handheld::DrawManagementContent(rt, { 8, 8 }, { 496, SheetHeight() }, model);
                 if (_page == Page::parkHistory)
                     Handheld::ParkInformation::DrawHistory(rt, _parkGuestHistory);
                 if (_page == Page::financeHistory)
@@ -9398,7 +9409,7 @@ namespace OpenRCT2::Ui::Windows
             }
             if (_page == Page::shopAppearance || _page == Page::shopAppearanceEditor || _page == Page::shopAppearanceReview)
             {
-                Handheld::DrawManagementContent(rt, { 8, 8 }, { 330, 348 }, shopAppearancePresentation());
+                Handheld::DrawManagementContent(rt, { 8, 8 }, { 330, SheetHeight() }, shopAppearancePresentation());
                 Handheld::DrawActionStrip(rt, { ContextGetWidth(), ContextGetHeight() });
                 Handheld::DrawFooter(
                     rt, { ContextGetWidth(), ContextGetHeight() },
@@ -9410,7 +9421,7 @@ namespace OpenRCT2::Ui::Windows
             if (_page == Page::shop)
             {
                 const auto model = shopPresentation();
-                Handheld::DrawManagementContent(rt, { 8, 8 }, { 330, 348 }, model);
+                Handheld::DrawManagementContent(rt, { 8, 8 }, { 330, SheetHeight() }, model);
                 Handheld::DrawActionStrip(rt, { ContextGetWidth(), ContextGetHeight() });
                 const auto row = _focus.index();
                 const bool onPrice = row >= 1 && row <= shopPriceCount();
@@ -9443,7 +9454,7 @@ namespace OpenRCT2::Ui::Windows
                                           : noMoney                          ? std::string("None")
                                                                              : Handheld::FormatMoney(-quote.cost) } };
                 }
-                Handheld::DrawManagementContent(rt, { 8, 8 }, { 330, 348 }, model);
+                Handheld::DrawManagementContent(rt, { 8, 8 }, { 330, SheetHeight() }, model);
                 Handheld::DrawActionStrip(rt, { ContextGetWidth(), ContextGetHeight() });
                 Handheld::DrawFooter(
                     rt, { ContextGetWidth(), ContextGetHeight() },

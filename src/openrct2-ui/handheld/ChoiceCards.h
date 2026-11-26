@@ -173,11 +173,22 @@ namespace OpenRCT2::Ui::Handheld
         DrawHeadingText(rt, p + ScreenCoordsXY{ 12, 11 }, "{WHITE}" + title, width - 24);
         Fill(rt, p + ScreenCoordsXY{ 12, 37 }, { width - 24, 1 }, Theme::edge);
         const auto slots = GroupSlots(cards, groups.size());
+        // The rows are sized for a 4:3 screen. On a wider, shorter one (16:9 Android handhelds)
+        // they would push the description under the footer, so the big first row gives up the
+        // difference, down to the smallest size that still draws as a card.
+        int needed = 44 + 13 + 4;
+        for (size_t g = 0; g < groups.size(); ++g)
+            if (!slots[g].empty())
+                needed += 14 + groups[g].height + 8;
+        const int squeeze = std::max(0, needed - height);
         int y = 44;
         for (size_t g = 0; g < groups.size(); ++g)
         {
             if (slots[g].empty())
                 continue;
+            int rowHeight = groups[g].height;
+            if (g == 0 && rowHeight >= 40)
+                rowHeight = std::max(48, rowHeight - squeeze);
             DrawSectionLabel(rt, p + ScreenCoordsXY{ 14, y }, width - 28, groups[g].title);
             y += 14;
             const int count = static_cast<int>(slots[g].size());
@@ -186,13 +197,13 @@ namespace OpenRCT2::Ui::Handheld
             {
                 const auto& card = cards[slots[g][k]];
                 const auto cell = p + ScreenCoordsXY{ 10 + k * cellWidth, y };
-                const ScreenSize size{ cellWidth - 6, groups[g].height };
-                if (groups[g].height < 40)
+                const ScreenSize size{ cellWidth - 6, rowHeight };
+                if (rowHeight < 40)
                     DrawChoiceChip(rt, cell, size, card, selected == card.action);
                 else
                     DrawChoiceCard(rt, cell, size, card, selected == card.action);
             }
-            y += groups[g].height + 8;
+            y += rowHeight + 8;
         }
         const auto found = std::find_if(cards.begin(), cards.end(), [&](const auto& c) { return c.action == selected; });
         if (found != cards.end())

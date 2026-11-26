@@ -4,6 +4,7 @@
 #include "MapSubjects.h"
 
 #include <openrct2-ui/windows/NativeMap.h>
+#include <openrct2/Context.h>
 #include <openrct2/GameState.h>
 #include <openrct2/interface/Viewport.h>
 #include <openrct2/world/Map.h>
@@ -229,7 +230,7 @@ namespace OpenRCT2::Ui::Handheld::ParkMap
             }
         }
         DrawFooter(
-            rt, { 512, 384 },
+            rt, { ContextGetWidth(), ContextGetHeight() },
             { { "D-pad", "Move" },
               { "A", "Locate" },
               { "Y", "Zoom" },

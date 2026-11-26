@@ -10,7 +10,7 @@ A controller-first build of <a href="https://github.com/OpenRCT2/OpenRCT2">OpenR
   <a href="https://github.com/keewhi/openrct2-pocket/releases/download/v0.4.2-beta.1/OpenRCT2-Pocket-v0.4.2-beta.1.zip"><img src="https://img.shields.io/badge/Download-Brick%20Pak-2ea44f?style=for-the-badge" alt="Download Brick Pak"></a>
 </p>
 
-<p align="center"><a href="https://github.com/keewhi/openrct2-pocket/releases/tag/v0.4.2-beta.1">Pocket Beta 3</a> · <a href="https://github.com/keewhi/openrct2-pocket/releases">All releases</a></p>
+<p align="center"><a href="https://github.com/keewhi/openrct2-pocket/releases/tag/v0.4.2-beta.2">Pocket Beta 4</a> · <a href="https://github.com/keewhi/openrct2-pocket/releases">All releases</a></p>
 
 <p align="center">
   <a href="https://github.com/keewhi/openrct2-pocket/releases"><img src="https://img.shields.io/github/v/release/keewhi/openrct2-pocket?include_prereleases&label=version" alt="Latest version"></a>

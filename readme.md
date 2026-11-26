@@ -6,8 +6,8 @@
 A controller-first build of <a href="https://github.com/OpenRCT2/OpenRCT2">OpenRCT2</a> for Linux and Android.</p>
 
 <p align="center">
-  <a href="https://github.com/keewhi/openrct2-pocket/releases/download/v0.4.2-beta.1/OpenRCT2-Pocket-v0.4.2-beta.1-android.apk"><img src="https://img.shields.io/badge/Download-Android%20APK-2ea44f?style=for-the-badge&logo=android" alt="Download Android APK"></a>
-  <a href="https://github.com/keewhi/openrct2-pocket/releases/download/v0.4.2-beta.1/OpenRCT2-Pocket-v0.4.2-beta.1.zip"><img src="https://img.shields.io/badge/Download-Brick%20Pak-2ea44f?style=for-the-badge" alt="Download Brick Pak"></a>
+  <a href="https://github.com/keewhi/openrct2-pocket/releases/download/v0.4.2-beta.2/OpenRCT2-Pocket-v0.4.2-beta.2-android.apk"><img src="https://img.shields.io/badge/Download-Android%20APK-2ea44f?style=for-the-badge&logo=android" alt="Download Android APK"></a>
+  <a href="https://github.com/keewhi/openrct2-pocket/releases/download/v0.4.2-beta.2/OpenRCT2-Pocket-v0.4.2-beta.2.zip"><img src="https://img.shields.io/badge/Download-Brick%20Pak-2ea44f?style=for-the-badge" alt="Download Brick Pak"></a>
 </p>
 
 <p align="center"><a href="https://github.com/keewhi/openrct2-pocket/releases/tag/v0.4.2-beta.2">Pocket Beta 4</a> · <a href="https://github.com/keewhi/openrct2-pocket/releases">All releases</a></p>
